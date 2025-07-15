@@ -5,9 +5,24 @@ class RegexBuilder:
         self._pattern = ""
         self._parts = []
 
-    def starts_with(self, text: str):
-        self._pattern += "^" + re.escape(text)
-        self._parts.append(f"Começa com \"{text}\"")
+    def add_start_anchor(self, multiline: bool = False):
+        """
+        Adds a start-of-line or start-of-text anchor to the regex pattern.
+
+        Args:
+            multiline (bool): 
+                If True, uses '^' to match the beginning of each line 
+                (when re.MULTILINE is enabled).
+                If False (default), uses '\\A' to match only the start 
+                of the entire input string.
+
+        Returns:
+            self: Enables method chaining.
+        """
+
+        anchor = "^" if multiline else r"\A"
+        self._pattern += anchor
+        self._parts.append("Início da linha" if multiline else "Início do texto")
         return self
     
     def has_digits(
