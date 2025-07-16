@@ -10,7 +10,7 @@ class RegexBuilder:
         Adds a start-of-line or start-of-text anchor to the regex pattern.
 
         Args:
-            multiline (bool): 
+            multiline (bool, optional): 
                 If True, uses '^' to match the beginning of each line 
                 (when re.MULTILINE is enabled).
                 If False (default), uses '\\A' to match only the start 
@@ -20,9 +20,9 @@ class RegexBuilder:
             self: Enables method chaining.
         """
 
-        anchor = "^" if multiline else r"\A"
+        anchor, explanation = ("^", "Início da linha") if multiline else (r"\A", "Início do texto")
         self._pattern += anchor
-        self._parts.append("Início da linha" if multiline else "Início do texto")
+        self._parts.append(explanation)
         return self
     
     def has_digits(
