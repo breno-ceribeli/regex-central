@@ -88,9 +88,24 @@ class RegexBuilder:
         self._parts.append(explanation)
         return self
 
-    def ends_with(self, text: str):
-        self._pattern += re.escape(text) + "$"
-        self._parts.append(f"Termina com \"{text}\"")
+    def add_end_anchor(self, multiline: bool = False):
+        """
+        Adds an end-of-line or end-of-text anchor to the regex pattern.
+
+        Args:
+            multiline (bool, optional):
+                If True, uses '$' to match the ending of each line 
+                (when re.MULTILINE is enabled).
+                If False (default), uses '\\Z' to match only the start 
+                of the entire input string.
+
+        Returns:
+            self: Enables method chaining.
+        """
+
+        anchor, explanation = ("$", "Fim da linha") if multiline else (r"\Z", "Fim do texto")
+        self._pattern += anchor
+        self._parts.append(explanation)
         return self
     
     def build(self):
