@@ -1,9 +1,18 @@
 import re
 
 class RegexBuilder:
+    # Mapping of `re` module flags to a human-readable name and description.
+    # Used to display flag information in the interface and generate documentation.
+    FLAG_INFO = {
+        re.MULTILINE: ("MULTILINE", "Faz com que ^ e $ correspondam ao início e ao fim de cada linha."),
+        re.IGNORECASE: ("IGNORECASE", "Faz a correspondência sem diferenciar maiúsculas de minúsculas."),
+        re.DOTALL: ("DOTALL", "Faz o ponto (.) corresponder também a quebras de linha.")
+    }
+
     def __init__(self):
         self._pattern = ""
         self._parts = []
+        self._flags = set()
 
     def add_start_anchor(self, multiline: bool = False):
         """
@@ -111,7 +120,72 @@ class RegexBuilder:
     def build(self):
         return self._pattern
     
+    def compile(self):
+        """
+        Compiles the regex pattern with all defined parts and flags.
+
+        Returns:
+            re.Pattern: A compiled regular expression object using re.compile().
+        """
+        return re.compile(self.build(), flags=sum(self._flags))
+
     def explain(self):
         return self._parts.copy()
     
+    def enable_multiline(self, enabled: bool = True):
+        """
+        Enables or disables the MULTILINE flag in the regex.
+
+        Args:
+            enabled (bool, optional):
+                If True (default), '^' and '$' will match the start and end of each line.
+                If False, they match only the start and end of the whole string.
+
+        Returns:
+            self: Enables method chaining.
+        """
+        self._set_flag(re.MULTILINE, enabled)
+        return self
+
+    def enable_ignorecase(self, enabled: bool = True):
+        """
+        Enables or disables case-insensitive matching (IGNORECASE flag).
+
+        Args:
+            enabled (bool, optional):
+                If True (default), makes the pattern case-insensitive.
+                If False, case sensitivity is preserved.
+
+        Returns:
+            self: Enables method chaining.
+        """
+        self._set_flag(re.IGNORECASE, enabled)
+        return self
     
+    def enable_dotall(self, enabled: bool = True):
+        """
+        Enables or disables the DOTALL flag, affecting dot (.) behavior.
+
+        Args:
+            enabled (bool, optional):
+                If True (default), the '.' character matches newline characters as well.
+                If False, '.' does not match newlines.
+
+        Returns:
+            self: Enables method chaining.
+        """
+        self._set_flag(re.DOTALL, enabled)
+        return self
+
+    def _set_flag(self, flag: re.RegexFlag, enabled: bool):
+        """
+        Adds or removes a regex flag from the internal set.
+
+        Args:
+            flag (re.RegexFlag): The regex flag to enable or disable.
+            enabled (bool): Whether to enable (add) or disable (remove) the flag.
+        """
+        if enabled:
+            self._flags.add(flag)
+        else:
+            self._flags.discard(flag)
