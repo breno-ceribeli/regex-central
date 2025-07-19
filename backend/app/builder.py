@@ -35,64 +35,20 @@ class RegexBuilder:
         return self
     
     def has_digits(
-    self,
-    qty: int | None = None,
-    min_qty: int | None = None,
-    max_qty: int | None = None,
-    special_quantifier: str | None = None
+        self,
+        qty: int | None = None,
+        min_qty: int | None = None,
+        max_qty: int | None = None,
+        special_quantifier: str | None = None
     ):
-        # Handle special quantifiers like +, *, ?
-        if special_quantifier is not None:
-            if any(v is not None for v in (qty, min_qty, max_qty)):
-                raise ValueError("Cannot use special quantifier along with quantity values.")
-            if special_quantifier not in ("+", "*", "?"):
-                raise ValueError(f"Invalid special quantifier: {special_quantifier}")
-            
-            quantifier = special_quantifier
-            explanation = {
-                "+": "One or more digits",
-                "*": "Zero or more digits",
-                "?": "Zero or one digit"
-            }[quantifier]
+        quantifier, explanation = self._get_quantifier_and_explanation(
+            qty=qty,
+            min_qty=min_qty,
+            max_qty=max_qty,
+            special_quantifier=special_quantifier,
+            unit_names=("digit", "digits")
+        )
 
-        else:
-            # Normalize input in case values come as strings
-            try:
-                if qty is not None:
-                    qty = int(qty)
-                if min_qty is not None:
-                    min_qty = int(min_qty)
-                if max_qty is not None:
-                    max_qty = int(max_qty)
-            except (ValueError, TypeError):
-                raise ValueError("Quantities must be valid integers or None.")
-
-            # Validate quantity constraints
-            if any(v is not None and v < 0 for v in (qty, min_qty, max_qty)):
-                raise ValueError("Digit quantity cannot be negative.")
-
-            if min_qty is not None and max_qty is not None and min_qty >= max_qty:
-                raise ValueError("min_qty must be less than max_qty.")
-            
-            # Determine quantifier and explanation
-            if qty not in (None, 1):
-                quantifier = f"{{{qty}}}"
-                explanation = f"Exactly {qty} digits"
-            else:
-                if min_qty is not None and max_qty is not None:
-                    quantifier = f"{{{min_qty},{max_qty}}}"
-                    explanation = f"Between {min_qty} and {max_qty} digits"
-                elif min_qty is not None:
-                    quantifier = f"{{{min_qty},}}"
-                    explanation = f"At least {min_qty} digits"
-                elif max_qty is not None:
-                    quantifier = f"{{0,{max_qty}}}"
-                    explanation = f"Up to {max_qty} digits"
-                else:
-                    quantifier = ""
-                    explanation = "Exactly 1 digit"
-
-        # Append regex and explanation
         self._pattern += r"\d" + quantifier
         self._parts.append(explanation)
         return self
