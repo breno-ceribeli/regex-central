@@ -189,3 +189,72 @@ class RegexBuilder:
             self._flags.add(flag)
         else:
             self._flags.discard(flag)
+
+    def _get_quantifier_and_explanation(
+        self,
+        qty: int | None,
+        min_qty: int | None,
+        max_qty: int | None,
+        special_quantifier: str | None,
+        unit_names: tuple[str, str]  # (singular, plural)
+    ) -> tuple[str, str]:
+        """
+        Internal method to generate a quantifier and its human-readable explanation.
+
+        This method handles both standard quantifiers (like `{n}`, `{min,max}`) and 
+        special quantifiers (`+`, `*`, `?`), and return the quantifier and an 
+        explanation using appropriate singular or plural terms.
+
+        Args:
+            qty (int | None): Exact quantity, e.g., 3 for `{3}`.
+            min_qty (int | None): Minimum quantity, used in ranged quantifiers.
+            max_qty (int | None): Maximum quantity, used in ranged quantifiers.
+            special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
+            unit_names (tuple[str, str]): Singular and plural forms of the item being quantified.
+
+        Returns:
+            tuple[str, str]: A tuple containing the regex quantifier string and its explanation.
+        """
+        singular, plural = unit_names
+
+        if special_quantifier is not None:
+            if any(v is not None for v in (qty, min_qty, max_qty)):
+                raise ValueError("Cannot use special quantifier along with quantity values.")
+            if special_quantifier not in ("+", "*", "?"):
+                raise ValueError(f"Invalid special quantifier: {special_quantifier}")
+            
+            explanation = {
+                "+": f"One or more {plural}",
+                "*": f"Zero or more {plural}",
+                "?": f"Zero or one {singular}"
+            }[special_quantifier]
+
+            return special_quantifier, explanation
+        
+        try:
+            if qty is not None:
+                qty = int(qty)
+            if min_qty is not None:
+                min_qty = int(min_qty)
+            if max_qty is not None:
+                max_qty = int(max_qty)
+        except (ValueError, TypeError):
+            raise ValueError("Quantities must be valid integers or None.")
+
+        if any(v is not None and v <= 0 for v in (qty, min_qty, max_qty)):
+            raise ValueError("Quantities cannot be equal to or less than zero.")
+        if min_qty is not None and max_qty is not None and min_qty >= max_qty:
+            raise ValueError("min_qty must be less than max_qty.")
+
+        if qty not in (None, 1):
+            return f"{{{qty}}}", f"Exactly {qty} {plural}"
+        if min_qty is not None and max_qty is not None:
+            return f"{{{min_qty},{max_qty}}}", f"Between {min_qty} and {max_qty} {plural}"
+        if min_qty is not None:
+            unit = singular if min_qty == 1 else plural
+            return f"{{{min_qty},}}", f"At least {min_qty} {unit}"
+        if max_qty is not None:
+            unit = singular if max_qty == 1 else plural
+            return f"{{0,{max_qty}}}", f"Up to {max_qty} {unit}"
+
+        return "", f"Exactly 1 {singular}"
