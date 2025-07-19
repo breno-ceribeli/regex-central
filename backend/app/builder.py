@@ -41,6 +41,22 @@ class RegexBuilder:
         max_qty: int | None = None,
         special_quantifier: str | None = None
     ):
+        """
+        Adds a digit-matching pattern to the current regex expression.
+
+        Supports exact quantities (e.g., `{3}`), ranged quantities (e.g., `{2,5}`),
+        and special quantifiers (`+`, `*`, `?`) to define how many digits should be matched.
+
+        Args:
+            qty (int | None): Exact quantity, e.g., 3 for `{3}`.
+            min_qty (int | None): Minimum quantity, used in ranged quantifiers.
+            max_qty (int | None): Maximum quantity, used in ranged quantifiers.
+            special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
+
+        Returns:
+            Self: Enables method chaining.
+        """
+
         quantifier, explanation = self._get_quantifier_and_explanation(
             qty=qty,
             min_qty=min_qty,
