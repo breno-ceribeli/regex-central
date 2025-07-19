@@ -14,7 +14,7 @@ class RegexBuilder:
         self._parts = []
         self._flags = set()
 
-    def add_start_anchor(self, multiline: bool = False):
+    def start_anchor(self, multiline: bool = False):
         """
         Adds a start-of-line or start-of-text anchor to the regex pattern.
 
@@ -34,7 +34,7 @@ class RegexBuilder:
         self._parts.append(explanation)
         return self
     
-    def has_digits(
+    def digits(
         self,
         qty: int | None = None,
         min_qty: int | None = None,
@@ -69,7 +69,7 @@ class RegexBuilder:
         self._parts.append(explanation)
         return self
 
-    def add_end_anchor(self, multiline: bool = False):
+    def end_anchor(self, multiline: bool = False):
         """
         Adds an end-of-line or end-of-text anchor to the regex pattern.
 
