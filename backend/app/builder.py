@@ -4,9 +4,9 @@ class RegexBuilder:
     # Mapping of `re` module flags to a human-readable name and description.
     # Used to display flag information in the interface and generate documentation.
     FLAG_INFO = {
-        re.MULTILINE: ("MULTILINE", "Faz com que ^ e $ correspondam ao início e ao fim de cada linha."),
-        re.IGNORECASE: ("IGNORECASE", "Faz a correspondência sem diferenciar maiúsculas de minúsculas."),
-        re.DOTALL: ("DOTALL", "Faz o ponto (.) corresponder também a quebras de linha.")
+        re.MULTILINE: ("MULTILINE", "Makes ^ and $ match the start and end of each line."),
+        re.IGNORECASE: ("IGNORECASE", "Enables case-insensitive matching."),
+        re.DOTALL: ("DOTALL", "Makes dot (.) match newline characters as well.")
     }
 
     def __init__(self):
@@ -29,7 +29,7 @@ class RegexBuilder:
             self: Enables method chaining.
         """
 
-        anchor, explanation = ("^", "Início da linha") if multiline else (r"\A", "Início do texto")
+        anchor, explanation = ("^", "Start of line") if multiline else (r"\A", "Start of text")
         self._pattern += anchor
         self._parts.append(explanation)
         return self
@@ -44,15 +44,15 @@ class RegexBuilder:
         # Handle special quantifiers like +, *, ?
         if special_quantifier is not None:
             if any(v is not None for v in (qty, min_qty, max_qty)):
-                raise ValueError("Não é permitido usar quantificador especial junto com quantidades.")
+                raise ValueError("Cannot use special quantifier along with quantity values.")
             if special_quantifier not in ("+", "*", "?"):
-                raise ValueError(f"Quantificador especial inválido: {special_quantifier}")
+                raise ValueError(f"Invalid special quantifier: {special_quantifier}")
             
             quantifier = special_quantifier
             explanation = {
-                "+": "Um ou mais dígitos",
-                "*": "Zero ou mais dígitos",
-                "?": "Zero ou um dígito"
+                "+": "One or more digits",
+                "*": "Zero or more digits",
+                "?": "Zero or one digit"
             }[quantifier]
 
         else:
@@ -65,32 +65,32 @@ class RegexBuilder:
                 if max_qty is not None:
                     max_qty = int(max_qty)
             except (ValueError, TypeError):
-                raise ValueError("As quantidades devem ser números inteiros válidos ou None.")
+                raise ValueError("Quantities must be valid integers or None.")
 
             # Validate quantity constraints
             if any(v is not None and v < 0 for v in (qty, min_qty, max_qty)):
-                raise ValueError("Quantidade de dígitos não pode ser negativa.")
+                raise ValueError("Digit quantity cannot be negative.")
 
             if min_qty is not None and max_qty is not None and min_qty >= max_qty:
-                raise ValueError("min_qty não pode ser maior ou igual a max_qty.")
+                raise ValueError("min_qty must be less than max_qty.")
             
             # Determine quantifier and explanation
             if qty not in (None, 1):
                 quantifier = f"{{{qty}}}"
-                explanation = f"Exatamente {qty} dígitos"
+                explanation = f"Exactly {qty} digits"
             else:
                 if min_qty is not None and max_qty is not None:
                     quantifier = f"{{{min_qty},{max_qty}}}"
-                    explanation = f"Entre {min_qty} e {max_qty} dígitos"
+                    explanation = f"Between {min_qty} and {max_qty} digits"
                 elif min_qty is not None:
                     quantifier = f"{{{min_qty},}}"
-                    explanation = f"Pelo menos {min_qty} dígitos"
+                    explanation = f"At least {min_qty} digits"
                 elif max_qty is not None:
                     quantifier = f"{{0,{max_qty}}}"
-                    explanation = f"Até {max_qty} dígitos"
+                    explanation = f"Up to {max_qty} digits"
                 else:
                     quantifier = ""
-                    explanation = "Exatamente 1 dígito"
+                    explanation = "Exactly 1 digit"
 
         # Append regex and explanation
         self._pattern += r"\d" + quantifier
@@ -112,7 +112,7 @@ class RegexBuilder:
             self: Enables method chaining.
         """
 
-        anchor, explanation = ("$", "Fim da linha") if multiline else (r"\Z", "Fim do texto")
+        anchor, explanation = ("$", "End of line") if multiline else (r"\Z", "End of text")
         self._pattern += anchor
         self._parts.append(explanation)
         return self
