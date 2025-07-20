@@ -42,7 +42,7 @@ class RegexBuilder:
         special_quantifier: str | None = None
     ):
         """
-        Adds a digit-matching pattern to the current regex expression.
+        Adds a digit-matching pattern (`\\d`) to the current regex expression.
 
         Supports exact quantities (e.g., `{3}`), ranged quantities (e.g., `{2,5}`),
         and special quantifiers (`+`, `*`, `?`) to define how many digits should be matched.
