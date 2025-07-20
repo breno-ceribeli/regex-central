@@ -69,6 +69,113 @@ class RegexBuilder:
         self._parts.append(explanation)
         return self
 
+    def non_digits(
+        self,
+        qty: int | None = None,
+        min_qty: int | None = None,
+        max_qty: int | None = None,
+        special_quantifier: str | None = None
+    ):
+        """
+        Adds a non-digit-matching pattern (`\\D`) to the current regex expression.
+
+        Supports exact quantities (e.g., `{3}`), ranged quantities (e.g., `{2,5}`),
+        and special quantifiers (`+`, `*`, `?`) to define how many non-digit characters should be matched.
+
+        Args:
+            qty (int | None): Exact quantity, e.g., 3 for `{3}`.
+            min_qty (int | None): Minimum quantity, used in ranged quantifiers.
+            max_qty (int | None): Maximum quantity, used in ranged quantifiers.
+            special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
+
+        Returns:
+            Self: Enables method chaining.
+        """
+
+        quantifier, explanation = self._get_quantifier_and_explanation(
+            qty=qty,
+            min_qty=min_qty,
+            max_qty=max_qty,
+            special_quantifier=special_quantifier,
+            unit_names=("non-digit character", "non-digit characters")
+        )
+
+        self._pattern += r"\D" + quantifier
+        self._parts.append(explanation)
+        return self
+
+    def word_chars(
+        self,
+        qty: int | None = None,
+        min_qty: int | None = None,
+        max_qty: int | None = None,
+        special_quantifier: str | None = None
+    ):
+        """
+        Adds a word character-matching pattern (`\\w`) to the current regex expression.
+
+        Supports exact quantities (e.g., `{3}`), ranged quantities (e.g., `{2,5}`),
+        and special quantifiers (`+`, `*`, `?`) to define how many word characters should be matched.
+
+        Note: `\\w` matches any alphanumeric character (letters and digits) and underscore.
+
+        Args:
+            qty (int | None): Exact quantity, e.g., 3 for `{3}`.
+            min_qty (int | None): Minimum quantity, used in ranged quantifiers.
+            max_qty (int | None): Maximum quantity, used in ranged quantifiers.
+            special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
+
+        Returns:
+            Self: Enables method chaining.
+        """
+        quantifier, explanation = self._get_quantifier_and_explanation(
+            qty=qty,
+            min_qty=min_qty,
+            max_qty=max_qty,
+            special_quantifier=special_quantifier,
+            unit_names=("word character", "word characters")
+        )
+
+        self._pattern += r"\w" + quantifier
+        self._parts.append(explanation)
+        return self
+
+    def non_word_chars(
+        self,
+        qty: int | None = None,
+        min_qty: int | None = None,
+        max_qty: int | None = None,
+        special_quantifier: str | None = None
+    ):
+        """
+        Adds a non-word character-matching pattern (`\\W`) to the current regex expression.
+
+        Supports exact quantities (e.g., `{3}`), ranged quantities (e.g., `{2,5}`),
+        and special quantifiers (`+`, `*`, `?`) to define how many non-word characters should be matched.
+
+        Note: `\\W` matches any character that is not a letter, digit, or underscore.
+
+        Args:
+            qty (int | None): Exact quantity, e.g., 3 for `{3}`.
+            min_qty (int | None): Minimum quantity, used in ranged quantifiers.
+            max_qty (int | None): Maximum quantity, used in ranged quantifiers.
+            special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
+
+        Returns:
+            Self: Enables method chaining.
+        """
+        quantifier, explanation = self._get_quantifier_and_explanation(
+            qty=qty,
+            min_qty=min_qty,
+            max_qty=max_qty,
+            special_quantifier=special_quantifier,
+            unit_names=("non-word character", "non-word characters")
+        )
+
+        self._pattern += r"\W" + quantifier
+        self._parts.append(explanation)
+        return self
+
     def end_anchor(self, multiline: bool = False):
         """
         Adds an end-of-line or end-of-text anchor to the regex pattern.
