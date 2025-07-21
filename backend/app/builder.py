@@ -176,6 +176,82 @@ class RegexBuilder:
         self._parts.append(explanation)
         return self
 
+    def whitespace_chars(
+        self,
+        qty: int | None = None,
+        min_qty: int | None = None,
+        max_qty: int | None = None,
+        special_quantifier: str | None = None
+    ):
+        """
+        Adds a whitespace-matching pattern (`\\s`) to the current regex expression.
+
+        Matches any whitespace character, including space, tab, newline, carriage return,
+        vertical tab, and form feed.
+
+        Supports exact quantities (e.g., `{3}`), ranged quantities (e.g., `{2,5}`),
+        and special quantifiers (`+`, `*`, `?`) to define how many whitespace characters should be matched.
+
+        Args:
+            qty (int | None): Exact quantity, e.g., 3 for `{3}`.
+            min_qty (int | None): Minimum quantity, used in ranged quantifiers.
+            max_qty (int | None): Maximum quantity, used in ranged quantifiers.
+            special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
+
+        Returns:
+            Self: Enables method chaining.
+        """
+
+        quantifier, explanation = self._get_quantifier_and_explanation(
+            qty=qty,
+            min_qty=min_qty,
+            max_qty=max_qty,
+            special_quantifier=special_quantifier,
+            unit_names=("whitespace character", "whitespace characters")
+        )
+
+        self._pattern += r"\s" + quantifier
+        self._parts.append(explanation)
+        return self
+
+    def non_whitespace_chars(
+        self,
+        qty: int | None = None,
+        min_qty: int | None = None,
+        max_qty: int | None = None,
+        special_quantifier: str | None = None
+    ):
+        """
+        Adds a non-whitespace-matching pattern (`\\S`) to the current regex expression.
+
+        Matches any character that is not considered whitespace (i.e., not space, tab,
+        newline, carriage return, vertical tab, or form feed).
+
+        Supports exact quantities (e.g., `{3}`), ranged quantities (e.g., `{2,5}`),
+        and special quantifiers (`+`, `*`, `?`) to define how many non-whitespace characters should be matched.
+
+        Args:
+            qty (int | None): Exact quantity, e.g., 3 for `{3}`.
+            min_qty (int | None): Minimum quantity, used in ranged quantifiers.
+            max_qty (int | None): Maximum quantity, used in ranged quantifiers.
+            special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
+
+        Returns:
+            Self: Enables method chaining.
+        """
+
+        quantifier, explanation = self._get_quantifier_and_explanation(
+            qty=qty,
+            min_qty=min_qty,
+            max_qty=max_qty,
+            special_quantifier=special_quantifier,
+            unit_names=("non-whitespace character", "non-whitespace characters")
+        )
+
+        self._pattern += r"\S" + quantifier
+        self._parts.append(explanation)
+        return self
+
     def end_anchor(self, multiline: bool = False):
         """
         Adds an end-of-line or end-of-text anchor to the regex pattern.
