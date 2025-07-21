@@ -272,6 +272,37 @@ class RegexBuilder:
         self._parts.append(explanation)
         return self
     
+    def word_boundary(self):
+        """
+        Adds a word boundary anchor (`\\b`) to the regex pattern.
+
+        This anchor matches a position where a word character (letters, digits,
+        or underscores) is adjacent to a non-word character (like whitespace,
+        punctuation, or the start/end of the string). Commonly used to ensure
+        a word starts or ends at a given position.
+
+        Returns:
+            self: Enables method chaining.
+        """
+        self._pattern += r"\b"
+        self._parts.append("Word boundary")
+        return self
+
+    def non_word_boundary(self):
+        """
+        Adds a non-word-boundary anchor (`\\B`) to the regex pattern.
+
+        This anchor matches a position where two word characters or two
+        non-word characters are adjacent—i.e., not at the boundary of a word.
+        Useful to ensure a match occurs strictly inside or outside of words.
+
+        Returns:
+            self: Enables method chaining.
+        """
+        self._pattern += r"\B"
+        self._parts.append("Non-word boundary")
+        return self
+
     def build(self):
         return self._pattern
     
