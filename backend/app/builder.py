@@ -303,6 +303,60 @@ class RegexBuilder:
         self._parts.append("Non-word boundary")
         return self
 
+    def literal(
+        self,
+        text: str,
+        qty: int | None = None,
+        min_qty: int | None = None,
+        max_qty: int | None = None,
+        special_quantifier: str | None = None,
+        capturing: bool = False
+    ):
+        """
+        Adds a literal (exact) string to the regex pattern, escaping special characters.
+
+        Supports exact quantities (e.g., `{3}`), ranged quantities (e.g., `{2,5}`),
+        and special quantifiers (`+`, `*`, `?`) to define how many times the entire
+        string should be matched.
+
+        Args:
+            text (str): The exact string to match literally.
+            qty (int | None): Exact quantity, e.g., 3 for `{3}`.
+            min_qty (int | None): Minimum quantity, used in ranged quantifiers.
+            max_qty (int | None): Maximum quantity, used in ranged quantifiers.
+            special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
+
+        Returns:
+            self: Enables method chaining.
+        """
+        if not text:
+            return self  # Nothing to add
+
+        escaped = re.escape(text)
+
+        unit_names = ("literal string", "literal strings")
+
+        quantifier, explanation = self._get_quantifier_and_explanation(
+            qty=qty,
+            min_qty=min_qty,
+            max_qty=max_qty,
+            special_quantifier=special_quantifier,
+            unit_names=unit_names
+        )
+
+        # Group the literal if it has more than 1 character and quantifier is used
+        if len(escaped) > 1 and quantifier:
+            escaped = f"({escaped})" if capturing else f"(?:{escaped})"
+
+        self._pattern += escaped + quantifier
+
+        # Final explanation
+        self._parts.append(
+            f'"{text}"' if not quantifier else f'{explanation}: "{text}"'
+        )
+
+        return self
+
     def build(self):
         return self._pattern
     
