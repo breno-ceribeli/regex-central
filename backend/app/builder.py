@@ -10,8 +10,8 @@ class RegexBuilder:
     }
 
     def __init__(self):
-        self._pattern = ""
-        self._parts = []
+        self._pattern_parts = []
+        self._explanations = []
         self._flags = set()
 
     def start_anchor(self, multiline: bool = False):
@@ -30,8 +30,8 @@ class RegexBuilder:
         """
 
         anchor, explanation = ("^", "Start of line") if multiline else (r"\A", "Start of text")
-        self._pattern += anchor
-        self._parts.append(explanation)
+        self._pattern_parts.append(anchor)
+        self._explanations.append(explanation)
         return self
     
     def digits(
@@ -65,8 +65,8 @@ class RegexBuilder:
             unit_names=("digit", "digits")
         )
 
-        self._pattern += r"\d" + quantifier
-        self._parts.append(explanation)
+        self._pattern_parts.append(r"\d" + quantifier)
+        self._explanations.append(explanation)
         return self
 
     def non_digits(
@@ -100,8 +100,8 @@ class RegexBuilder:
             unit_names=("non-digit character", "non-digit characters")
         )
 
-        self._pattern += r"\D" + quantifier
-        self._parts.append(explanation)
+        self._pattern_parts.append(r"\D" + quantifier)
+        self._explanations.append(explanation)
         return self
 
     def word_chars(
@@ -136,8 +136,8 @@ class RegexBuilder:
             unit_names=("word character", "word characters")
         )
 
-        self._pattern += r"\w" + quantifier
-        self._parts.append(explanation)
+        self._pattern_parts.append(r"\w" + quantifier)
+        self._explanations.append(explanation)
         return self
 
     def non_word_chars(
@@ -172,8 +172,8 @@ class RegexBuilder:
             unit_names=("non-word character", "non-word characters")
         )
 
-        self._pattern += r"\W" + quantifier
-        self._parts.append(explanation)
+        self._pattern_parts.append(r"\W" + quantifier)
+        self._explanations.append(explanation)
         return self
 
     def whitespace_chars(
@@ -210,8 +210,8 @@ class RegexBuilder:
             unit_names=("whitespace character", "whitespace characters")
         )
 
-        self._pattern += r"\s" + quantifier
-        self._parts.append(explanation)
+        self._pattern_parts.append(r"\s" + quantifier)
+        self._explanations.append(explanation)
         return self
 
     def non_whitespace_chars(
@@ -248,8 +248,8 @@ class RegexBuilder:
             unit_names=("non-whitespace character", "non-whitespace characters")
         )
 
-        self._pattern += r"\S" + quantifier
-        self._parts.append(explanation)
+        self._pattern_parts.append(r"\S" + quantifier)
+        self._explanations.append(explanation)
         return self
 
     def end_anchor(self, multiline: bool = False):
@@ -268,8 +268,8 @@ class RegexBuilder:
         """
 
         anchor, explanation = ("$", "End of line") if multiline else (r"\Z", "End of text")
-        self._pattern += anchor
-        self._parts.append(explanation)
+        self._pattern_parts.append(anchor)
+        self._explanations.append(explanation)
         return self
     
     def word_boundary(self):
@@ -284,8 +284,8 @@ class RegexBuilder:
         Returns:
             self: Enables method chaining.
         """
-        self._pattern += r"\b"
-        self._parts.append("Word boundary")
+        self._pattern_parts.append(r"\b")
+        self._explanations.append("Word boundary")
         return self
 
     def non_word_boundary(self):
@@ -299,8 +299,8 @@ class RegexBuilder:
         Returns:
             self: Enables method chaining.
         """
-        self._pattern += r"\B"
-        self._parts.append("Non-word boundary")
+        self._pattern_parts.append(r"\B")
+        self._explanations.append("Non-word boundary")
         return self
 
     def literal(
@@ -348,17 +348,17 @@ class RegexBuilder:
         if len(escaped) > 1 and quantifier:
             escaped = f"({escaped})" if capturing else f"(?:{escaped})"
 
-        self._pattern += escaped + quantifier
+        self._pattern_parts.append(escaped + quantifier)
 
         # Final explanation
-        self._parts.append(
+        self._explanations.append(
             f'"{text}"' if not quantifier else f'{explanation}: "{text}"'
         )
 
         return self
 
-    def build(self):
-        return self._pattern
+    def build(self) -> str:
+        return ''.join(self._pattern_parts)
     
     def compile(self):
         """
@@ -370,7 +370,7 @@ class RegexBuilder:
         return re.compile(self.build(), flags=sum(self._flags))
 
     def explain(self):
-        return self._parts.copy()
+        return self._explanations.copy()
     
     def enable_multiline(self, enabled: bool = True):
         """
