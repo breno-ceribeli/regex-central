@@ -357,6 +357,66 @@ class RegexBuilder:
 
         return self
 
+    def start_group(self, capturing: bool = False):
+        """
+        Starts a new group in the regex pattern.
+
+        Args:
+            capturing (bool, optional): 
+                If True, creates a capturing group using '()'. 
+                If False (default), creates a non-capturing group using '(?:)'.
+
+        Returns:
+            self: Enables method chaining.
+        """
+        self._pattern_parts.append("(" if capturing else "(?:")
+        self._explanations.append(
+            "Start of capturing group" if capturing else "Start of non-capturing group"
+        )
+        return self
+
+    def end_group(
+    self,
+    qty: int | None = None,
+    min_qty: int | None = None,
+    max_qty: int | None = None,
+    special_quantifier: str | None = None
+):
+        """
+        Ends the most recently opened group and optionally applies quantifiers to it.
+
+        Supports exact quantities (e.g., `{3}`), ranged quantities (e.g., `{2,5}`),
+        and special quantifiers (`+`, `*`, `?`) to define how many times the group
+        should be matched.
+
+        Args:
+            qty (int | None): Exact quantity, e.g., 3 for `{3}`.
+            min_qty (int | None): Minimum quantity, used in ranged quantifiers.
+            max_qty (int | None): Maximum quantity, used in ranged quantifiers.
+            special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
+
+        Returns:
+            self: Enables method chaining.
+        """
+        self._pattern_parts.append(")")
+
+        unit_names = ("group", "groups")
+        quantifier, explanation = self._get_quantifier_and_explanation(
+            qty=qty,
+            min_qty=min_qty,
+            max_qty=max_qty,
+            special_quantifier=special_quantifier,
+            unit_names=unit_names
+        )
+
+        if quantifier:
+            self._pattern_parts.append(quantifier)
+            self._explanations.append(explanation)
+        else:
+            self._explanations.append(explanation + "and end of group")
+
+        return self
+
     def build(self) -> str:
         return ''.join(self._pattern_parts)
     
