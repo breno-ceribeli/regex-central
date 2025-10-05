@@ -427,7 +427,11 @@ class RegexBuilder:
         Returns:
             re.Pattern: A compiled regular expression object using re.compile().
         """
-        return re.compile(self.build(), flags=sum(self._flags))
+        # Combine flags using bitwise OR to form a proper mask
+        flags_mask = 0
+        for f in self._flags:
+            flags_mask |= int(f)
+        return re.compile(self.build(), flags=flags_mask)
 
     def explain(self):
         return self._explanations.copy()
