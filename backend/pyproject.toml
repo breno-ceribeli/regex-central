@@ -1,0 +1,71 @@
+[tool.poetry]
+name = "regex-central-backend"
+version = "0.1.0"
+description = "Backend (Python) for regex-central"
+authors = ["Breno Fernandes Ceribeli <ceribelibreno@gmail.com>"]
+readme = "README.md"
+packages = [
+  { include = "builder", from = "src" },
+  { include = "web", from = "src" }
+]
+
+[tool.poetry.dependencies]
+python = ">=3.13,<4.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+pytest-cov = "^5.0"
+ruff = "^0.6.0"
+black = "^24.8"
+isort = "^5.13"
+mypy = "^1.10"
+
+[tool.ruff]
+line-length = 100
+select = ["E","F","I","UP","B","SIM"]
+ignore = []
+exclude = [
+  ".venv",
+  "__pycache__",
+  ".pytest_cache",
+]
+
+[tool.ruff.lint.isort]
+# Ensure compatibility with Black style
+combine-as-imports = true
+known-first-party = ["builder", "web"]
+
+[tool.ruff.format]
+# Use Ruff as a code formatter (if you decide to)
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[tool.black]
+line-length = 100
+
+[tool.isort]
+profile = "black"
+known-first-party = ["builder", "web"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+pythonpath = ["src"]
+addopts = "-v"
+
+[tool.mypy]
+python_version = "3.13"
+strict = false
+ignore_missing_imports = true
+exclude = [
+  "^\\.venv/",
+  "^__pycache__/",
+  "^tests/",
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"

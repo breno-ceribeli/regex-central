@@ -417,6 +417,30 @@ class RegexBuilder:
 
         return self
 
+    def lookahead(self, builder: 'RegexBuilder') -> 'RegexBuilder':
+        subpattern, explanation = self._process_lookaround_pattern(builder)
+        self._pattern_parts.append(f"(?={subpattern})")
+        self._explanations.append(f'if followed by {explanation}')
+        return self
+    
+    def negative_lookahead(self, builder: 'RegexBuilder') -> 'RegexBuilder':
+        subpattern, explanation = self._process_lookaround_pattern(builder)
+        self._pattern_parts.append(f"(?!{subpattern})")
+        self._explanations.append(f'if not followed by {explanation}')
+        return self
+
+    def lookbehind(self, builder: 'RegexBuilder') -> 'RegexBuilder':
+        subpattern, explanation = self._process_lookaround_pattern(builder)
+        self._pattern_parts.append(f"(?<={subpattern})")
+        self._explanations.append(f'if preceded by {explanation}')
+        return self
+    
+    def negative_lookbehind(self, builder: 'RegexBuilder') -> 'RegexBuilder':
+        subpattern, explanation = self._process_lookaround_pattern(builder)
+        self._pattern_parts.append(f"(?<!{subpattern})")
+        self._explanations.append(f'if not preceded by {explanation}')
+        return self
+
     def build(self) -> str:
         return ''.join(self._pattern_parts)
     
@@ -434,7 +458,8 @@ class RegexBuilder:
         return re.compile(self.build(), flags=flags_mask)
 
     def explain(self):
-        return self._explanations.copy()
+        # Always return strings - convert any non-string items to string representation
+        return [str(item) for item in self._explanations]
     
     def enable_multiline(self, enabled: bool = True):
         """
@@ -562,3 +587,16 @@ class RegexBuilder:
             return f"{{0,{max_qty}}}", f"Up to {max_qty} {unit}"
 
         return "", f"Exactly 1 {singular}"
+
+    def _process_lookaround_pattern(self, builder: 'RegexBuilder') -> tuple[str, str]:
+        if not isinstance(builder, RegexBuilder):
+            raise TypeError("Lookaround pattern must be a RegexBuilder instance.")
+
+        subpattern = builder.build()
+        # builder.explain() returns list[str]; convert items safely to strings,
+        # strip whitespace and filter out empty entries before joining.
+        explanation_list = builder.explain() or []
+        items = [s.strip() for s in map(str, explanation_list) if s is not None and str(s).strip()]
+        # If we have no readable explanation items, fall back to using the raw subpattern
+        explanation = "; ".join(items) if items else subpattern
+        return subpattern, explanation

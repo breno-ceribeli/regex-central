@@ -1,0 +1,82 @@
+# --- Python bytecode and caches ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Python build and packaging ---
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+.Python
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+ENV/
+.conda/
+
+# --- Testing and coverage ---
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# --- Type checker / linters caches ---
+.mypy_cache/
+.pyrightcache/
+.pyre/
+.pylint.d/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- Logs and temp files ---
+*.log
+*.tmp
+*.temp
+*.bak
+*.orig
+*~
+*.swp
+*.swo
+
+# --- OS specific ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Editor/IDE settings ---
+# VS Code: ignore everything by default but allow sharing settings.json (project-specific)
+.vscode/*
+!.vscode/settings.json
+# JetBrains (PyCharm/IntelliJ)
+.idea/
+# Visual Studio
+.vs/
+
+# --- Node / Frontend ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm/
+.next/
+out/
+
+# --- Environment variables / secrets ---
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# --- Databases / local data ---
+*.sqlite
+*.sqlite3
+*.db
