@@ -441,6 +441,284 @@ class RegexBuilder:
         self._explanations.append(f'if not preceded by {explanation}')
         return self
 
+    def char_class(
+        self,
+        chars: str,
+        negated: bool = False,
+        qty: int | None = None,
+        min_qty: int | None = None,
+        max_qty: int | None = None,
+        special_quantifier: str | None = None
+    ):
+        """
+        Adds a character class with specific characters to the regex pattern.
+
+        Creates a character class like [abc] that matches any of the specified characters.
+        Can be negated to create [^abc] which matches any character NOT in the set.
+
+        Args:
+            chars (str): Characters to include in the class (e.g., "abc", "aeiou").
+            negated (bool, optional): If True, creates a negated class [^chars]. Defaults to False.
+            qty (int | None): Exact quantity, e.g., 3 for `{3}`.
+            min_qty (int | None): Minimum quantity, used in ranged quantifiers.
+            max_qty (int | None): Maximum quantity, used in ranged quantifiers.
+            special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
+
+        Returns:
+            self: Enables method chaining.
+
+        Raises:
+            ValueError: If chars is empty or contains invalid characters.
+        """
+        if not chars:
+            raise ValueError("Character class cannot be empty")
+        
+        # Validate and escape characters for use in character class
+        escaped_chars = self._escape_char_class_chars(chars)
+        
+        # Build the character class
+        prefix = "^" if negated else ""
+        char_class = f"[{prefix}{escaped_chars}]"
+        
+        # Handle quantifiers
+        unit_names = ("character from class", "characters from class")
+        quantifier, explanation = self._get_quantifier_and_explanation(
+            qty=qty,
+            min_qty=min_qty,
+            max_qty=max_qty,
+            special_quantifier=special_quantifier,
+            unit_names=unit_names
+        )
+        
+        self._pattern_parts.append(char_class + quantifier)
+        
+        # Build explanation
+        char_display = ''.join(sorted(set(chars)))  # Remove duplicates and sort for display
+        base_explanation = f"Any character {'NOT ' if negated else ''}in '{char_display}'"
+        final_explanation = base_explanation if not quantifier else f"{explanation}: {base_explanation}"
+        
+        self._explanations.append(final_explanation)
+        return self
+
+    def char_range(
+        self,
+        start: str,
+        end: str,
+        negated: bool = False,
+        qty: int | None = None,
+        min_qty: int | None = None,
+        max_qty: int | None = None,
+        special_quantifier: str | None = None
+    ):
+        """
+        Adds a character range to the regex pattern.
+
+        Creates a character class with a range like [a-z] that matches any character
+        in the specified range. Can be negated to create [^a-z].
+
+        Args:
+            start (str): Start character of the range (e.g., 'a', '0', 'A').
+            end (str): End character of the range (e.g., 'z', '9', 'Z').
+            negated (bool, optional): If True, creates a negated range [^start-end]. Defaults to False.
+            qty (int | None): Exact quantity, e.g., 3 for `{3}`.
+            min_qty (int | None): Minimum quantity, used in ranged quantifiers.
+            max_qty (int | None): Maximum quantity, used in ranged quantifiers.
+            special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
+
+        Returns:
+            self: Enables method chaining.
+
+        Raises:
+            ValueError: If range is invalid (e.g., start > end, multi-character inputs).
+        """
+        # Validate the range
+        self._validate_char_range(start, end)
+        
+        # Build the character class with range
+        prefix = "^" if negated else ""
+        char_class = f"[{prefix}{start}-{end}]"
+        
+        # Handle quantifiers
+        unit_names = ("character from range", "characters from range")
+        quantifier, explanation = self._get_quantifier_and_explanation(
+            qty=qty,
+            min_qty=min_qty,
+            max_qty=max_qty,
+            special_quantifier=special_quantifier,
+            unit_names=unit_names
+        )
+        
+        self._pattern_parts.append(char_class + quantifier)
+        
+        # Build explanation
+        range_description = f"'{start}' to '{end}'"
+        base_explanation = f"Any character {'NOT ' if negated else ''}in range {range_description}"
+        final_explanation = base_explanation if not quantifier else f"{explanation}: {base_explanation}"
+        
+        self._explanations.append(final_explanation)
+        return self
+
+    def char_ranges(
+        self,
+        ranges: list[tuple[str, str]],
+        negated: bool = False,
+        qty: int | None = None,
+        min_qty: int | None = None,
+        max_qty: int | None = None,
+        special_quantifier: str | None = None
+    ):
+        """
+        Adds multiple character ranges to the regex pattern.
+
+        Creates a character class with multiple ranges like [a-zA-Z0-9] that matches
+        any character in any of the specified ranges.
+
+        Args:
+            ranges (list[tuple[str, str]]): List of (start, end) tuples for ranges.
+            negated (bool, optional): If True, creates a negated class. Defaults to False.
+            qty (int | None): Exact quantity, e.g., 3 for `{3}`.
+            min_qty (int | None): Minimum quantity, used in ranged quantifiers.
+            max_qty (int | None): Maximum quantity, used in ranged quantifiers.
+            special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
+
+        Returns:
+            self: Enables method chaining.
+
+        Raises:
+            ValueError: If ranges list is empty or contains invalid ranges.
+        """
+        if not ranges:
+            raise ValueError("Ranges list cannot be empty")
+        
+        # Validate all ranges
+        for start, end in ranges:
+            self._validate_char_range(start, end)
+        
+        # Build the character class with multiple ranges
+        range_parts = [f"{start}-{end}" for start, end in ranges]
+        prefix = "^" if negated else ""
+        char_class = f"[{prefix}{''.join(range_parts)}]"
+        
+        # Handle quantifiers
+        unit_names = ("character from ranges", "characters from ranges")
+        quantifier, explanation = self._get_quantifier_and_explanation(
+            qty=qty,
+            min_qty=min_qty,
+            max_qty=max_qty,
+            special_quantifier=special_quantifier,
+            unit_names=unit_names
+        )
+        
+        self._pattern_parts.append(char_class + quantifier)
+        
+        # Build explanation
+        range_descriptions = [f"'{start}'-'{end}'" for start, end in ranges]
+        ranges_text = ", ".join(range_descriptions)
+        base_explanation = f"Any character {'NOT ' if negated else ''}in ranges: {ranges_text}"
+        final_explanation = base_explanation if not quantifier else f"{explanation}: {base_explanation}"
+        
+        self._explanations.append(final_explanation)
+        return self
+
+    def char_class_mixed(
+        self,
+        chars: str = "",
+        ranges: list[tuple[str, str]] | None = None,
+        escape_sequences: list[str] | None = None,
+        negated: bool = False,
+        qty: int | None = None,
+        min_qty: int | None = None,
+        max_qty: int | None = None,
+        special_quantifier: str | None = None
+    ):
+        """
+        Adds a mixed character class combining individual characters, ranges, and escape sequences.
+
+        Creates complex character classes like [a-zA-Z0-9\s._-] that can include:
+        - Individual characters
+        - Character ranges
+        - Escape sequences (\d, \w, \s, etc.)
+
+        Args:
+            chars (str, optional): Individual characters to include. Defaults to "".
+            ranges (list[tuple[str, str]] | None): List of character ranges. Defaults to None.
+            escape_sequences (list[str] | None): List of escape sequences. Defaults to None.
+            negated (bool, optional): If True, creates a negated class. Defaults to False.
+            qty (int | None): Exact quantity, e.g., 3 for `{3}`.
+            min_qty (int | None): Minimum quantity, used in ranged quantifiers.
+            max_qty (int | None): Maximum quantity, used in ranged quantifiers.
+            special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
+
+        Returns:
+            self: Enables method chaining.
+
+        Raises:
+            ValueError: If all parameters are empty or contain invalid values.
+        """
+        # Validate that we have at least something to build
+        has_chars = bool(chars)
+        has_ranges = bool(ranges)
+        has_escapes = bool(escape_sequences)
+        
+        if not (has_chars or has_ranges or has_escapes):
+            raise ValueError("Character class cannot be empty - provide chars, ranges, or escape_sequences")
+        
+        # Build the parts of the character class
+        class_parts = []
+        
+        # Add individual characters (escaped)
+        if chars:
+            # In mixed classes, we need to escape hyphens even at the end if there are ranges/escapes after
+            has_content_after = bool(ranges) or bool(escape_sequences)
+            escaped_chars = self._escape_char_class_chars_mixed(chars, has_content_after)
+            class_parts.append(escaped_chars)
+        
+        # Add ranges
+        if ranges:
+            for start, end in ranges:
+                self._validate_char_range(start, end)
+                class_parts.append(f"{start}-{end}")
+        
+        # Add escape sequences
+        if escape_sequences:
+            for seq in escape_sequences:
+                self._validate_escape_sequence(seq)
+                class_parts.append(seq)
+        
+        # Build the character class
+        prefix = "^" if negated else ""
+        char_class = f"[{prefix}{''.join(class_parts)}]"
+        
+        # Handle quantifiers
+        unit_names = ("character from class", "characters from class")
+        quantifier, explanation = self._get_quantifier_and_explanation(
+            qty=qty,
+            min_qty=min_qty,
+            max_qty=max_qty,
+            special_quantifier=special_quantifier,
+            unit_names=unit_names
+        )
+        
+        self._pattern_parts.append(char_class + quantifier)
+        
+        # Build explanation
+        explanation_parts = []
+        if chars:
+            char_display = ''.join(sorted(set(chars)))
+            explanation_parts.append(f"characters '{char_display}'")
+        if ranges:
+            range_descriptions = [f"'{start}'-'{end}'" for start, end in ranges]
+            explanation_parts.append(f"ranges {', '.join(range_descriptions)}")
+        if escape_sequences:
+            explanation_parts.append(f"escape sequences {', '.join(escape_sequences)}")
+        
+        combined_description = ", ".join(explanation_parts)
+        base_explanation = f"Any character {'NOT ' if negated else ''}matching: {combined_description}"
+        final_explanation = base_explanation if not quantifier else f"{explanation}: {base_explanation}"
+        
+        self._explanations.append(final_explanation)
+        return self
+
     def build(self) -> str:
         return ''.join(self._pattern_parts)
     
@@ -518,6 +796,204 @@ class RegexBuilder:
             self._flags.add(flag)
         else:
             self._flags.discard(flag)
+
+    def _validate_char_range(self, start: str, end: str) -> None:
+        """
+        Validates that a character range is valid for use in a character class.
+
+        Args:
+            start (str): Start character of the range.
+            end (str): End character of the range.
+
+        Raises:
+            ValueError: If the range is invalid.
+        """
+        if not isinstance(start, str) or not isinstance(end, str):
+            raise ValueError("Range characters must be strings")
+        
+        if len(start) != 1:
+            raise ValueError(f"Range start must be a single character, got: '{start}' (length {len(start)})")
+        
+        if len(end) != 1:
+            raise ValueError(f"Range end must be a single character, got: '{end}' (length {len(end)})")
+        
+        start_ord = ord(start)
+        end_ord = ord(end)
+        
+        if start_ord > end_ord:
+            raise ValueError(
+                f"Invalid range '{start}-{end}': start character '{start}' (ASCII {start_ord}) "
+                f"must be <= end character '{end}' (ASCII {end_ord})"
+            )
+        
+        # Check for potentially confusing ranges that cross character types
+        if start.isalpha() != end.isalpha() and start_ord != end_ord:
+            import warnings
+            warnings.warn(
+                f"Range '{start}-{end}' crosses character types (letter/non-letter). "
+                "This may match unexpected characters.",
+                UserWarning,
+                stacklevel=3
+            )
+        
+        if start.isdigit() != end.isdigit() and start_ord != end_ord:
+            import warnings
+            warnings.warn(
+                f"Range '{start}-{end}' crosses character types (digit/non-digit). "
+                "This may match unexpected characters.",
+                UserWarning,
+                stacklevel=3
+            )
+
+    def _escape_char_class_chars(self, chars: str) -> str:
+        """
+        Escapes special characters for use inside character classes.
+
+        Inside character classes [], certain characters have special meaning and need escaping:
+        - ] closes the character class (always needs escaping)
+        - \ is the escape character (always needs escaping)  
+        - ^ negates the class (only when at the start)
+        - - creates ranges (only when between two characters)
+
+        Args:
+            chars (str): Characters to escape for use in character class.
+
+        Returns:
+            str: Escaped characters safe for use in [].
+
+        Raises:
+            ValueError: If chars contains null characters or is empty.
+        """
+        if not chars:
+            raise ValueError("Cannot escape empty character string")
+        
+        if '\x00' in chars:
+            raise ValueError("Null character (\\x00) not allowed in character class")
+        
+        # Check for non-ASCII characters and warn if found
+        try:
+            chars.encode('ascii')
+        except UnicodeEncodeError:
+            import warnings
+            non_ascii = [c for c in chars if ord(c) > 127]
+            warnings.warn(
+                f"Non-ASCII characters detected: {non_ascii}. "
+                "Ensure proper encoding handling in your regex engine.",
+                UserWarning,
+                stacklevel=3
+            )
+        
+        escaped = ""
+        for i, char in enumerate(chars):
+            if char == ']':
+                # ] always needs escaping inside character class
+                escaped += r'\]'
+            elif char == '\\':
+                # \ always needs escaping
+                escaped += r'\\'
+            elif char == '^' and i == 0:
+                # ^ only needs escaping if it's the first character (negation)
+                escaped += r'\^'
+            elif char == '-' and 0 < i < len(chars) - 1:
+                # - only needs escaping if it's in the middle (could be interpreted as range)
+                escaped += r'\-'
+            else:
+                # All other characters are safe in character classes
+                escaped += char
+        
+        return escaped
+
+    def _escape_char_class_chars_mixed(self, chars: str, has_content_after: bool = False) -> str:
+        """
+        Escapes special characters for use inside mixed character classes.
+        
+        This is similar to _escape_char_class_chars but handles the case where
+        characters are mixed with ranges or escape sequences, requiring different
+        escaping rules for hyphens.
+        
+        Args:
+            chars (str): Characters to escape for use in character class.
+            has_content_after (bool): Whether there will be ranges or escape sequences after these chars.
+        
+        Returns:
+            str: Escaped characters safe for use in mixed character classes.
+        """
+        if not chars:
+            raise ValueError("Cannot escape empty character string")
+        
+        if '\x00' in chars:
+            raise ValueError("Null character (\\x00) not allowed in character class")
+        
+        # Check for non-ASCII characters and warn if found
+        try:
+            chars.encode('ascii')
+        except UnicodeEncodeError:
+            import warnings
+            non_ascii = [c for c in chars if ord(c) > 127]
+            warnings.warn(
+                f"Non-ASCII characters detected: {non_ascii}. "
+                "Ensure proper encoding handling in your regex engine.",
+                UserWarning,
+                stacklevel=3
+            )
+        
+        escaped = ""
+        for i, char in enumerate(chars):
+            if char == ']':
+                # ] always needs escaping inside character class
+                escaped += r'\]'
+            elif char == '\\':
+                # \ always needs escaping
+                escaped += r'\\'
+            elif char == '^' and i == 0:
+                # ^ only needs escaping if it's the first character (negation)
+                escaped += r'\^'
+            elif char == '-':
+                # In mixed classes, hyphen needs escaping if:
+                # 1. It's in the middle of chars (between two characters), OR
+                # 2. It's at the end and there's content after (ranges/escapes)
+                needs_escape = (0 < i < len(chars) - 1) or (i == len(chars) - 1 and has_content_after)
+                if needs_escape:
+                    escaped += r'\-'
+                else:
+                    escaped += char
+            else:
+                # All other characters are safe in character classes
+                escaped += char
+        
+        return escaped
+
+    def _validate_escape_sequence(self, sequence: str) -> None:
+        """
+        Validates that an escape sequence is valid for use in character classes.
+
+        Args:
+            sequence (str): The escape sequence to validate (e.g., '\\d', '\\w').
+
+        Raises:
+            ValueError: If the escape sequence is invalid.
+        """
+        if not isinstance(sequence, str):
+            raise ValueError("Escape sequence must be a string")
+        
+        # Valid escape sequences for character classes
+        valid_sequences = {
+            r'\d', r'\D',  # Digits and non-digits
+            r'\w', r'\W',  # Word characters and non-word characters  
+            r'\s', r'\S',  # Whitespace and non-whitespace
+            r'\t',         # Tab
+            r'\n',         # Newline
+            r'\r',         # Carriage return
+            r'\f',         # Form feed
+            r'\v',         # Vertical tab
+        }
+        
+        if sequence not in valid_sequences:
+            valid_list = ', '.join(sorted(valid_sequences))
+            raise ValueError(
+                f"Invalid escape sequence: '{sequence}'. "
+                f"Valid sequences for character classes are: {valid_list}"
+            )
 
     def _get_quantifier_and_explanation(
         self,
