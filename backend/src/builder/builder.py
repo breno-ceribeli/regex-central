@@ -9,12 +9,18 @@ class RegexBuilder:
         re.DOTALL: ("DOTALL", "Makes dot (.) match newline characters as well.")
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """
+        Initializes a new RegexBuilder instance.
+
+        Sets up empty pattern parts, explanations, and flags collections for building
+        a regex pattern through method chaining.
+        """
         self._pattern_parts = []
         self._explanations = []
         self._flags = set()
 
-    def start_anchor(self, multiline: bool = False):
+    def start_anchor(self, multiline: bool = False) -> 'RegexBuilder':
         """
         Adds a start-of-line or start-of-text anchor to the regex pattern.
 
@@ -40,7 +46,7 @@ class RegexBuilder:
         min_qty: int | None = None,
         max_qty: int | None = None,
         special_quantifier: str | None = None
-    ):
+    ) -> 'RegexBuilder':
         """
         Adds a digit-matching pattern (`\\d`) to the current regex expression.
 
@@ -54,7 +60,7 @@ class RegexBuilder:
             special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
 
         Returns:
-            Self: Enables method chaining.
+            self: Enables method chaining.
         """
 
         quantifier, explanation = self._get_quantifier_and_explanation(
@@ -75,7 +81,7 @@ class RegexBuilder:
         min_qty: int | None = None,
         max_qty: int | None = None,
         special_quantifier: str | None = None
-    ):
+    ) -> 'RegexBuilder':
         """
         Adds a non-digit-matching pattern (`\\D`) to the current regex expression.
 
@@ -89,7 +95,7 @@ class RegexBuilder:
             special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
 
         Returns:
-            Self: Enables method chaining.
+            self: Enables method chaining.
         """
 
         quantifier, explanation = self._get_quantifier_and_explanation(
@@ -110,7 +116,7 @@ class RegexBuilder:
         min_qty: int | None = None,
         max_qty: int | None = None,
         special_quantifier: str | None = None
-    ):
+    ) -> 'RegexBuilder':
         """
         Adds a word character-matching pattern (`\\w`) to the current regex expression.
 
@@ -126,7 +132,7 @@ class RegexBuilder:
             special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
 
         Returns:
-            Self: Enables method chaining.
+            self: Enables method chaining.
         """
         quantifier, explanation = self._get_quantifier_and_explanation(
             qty=qty,
@@ -146,7 +152,7 @@ class RegexBuilder:
         min_qty: int | None = None,
         max_qty: int | None = None,
         special_quantifier: str | None = None
-    ):
+    ) -> 'RegexBuilder':
         """
         Adds a non-word character-matching pattern (`\\W`) to the current regex expression.
 
@@ -162,7 +168,7 @@ class RegexBuilder:
             special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
 
         Returns:
-            Self: Enables method chaining.
+            self: Enables method chaining.
         """
         quantifier, explanation = self._get_quantifier_and_explanation(
             qty=qty,
@@ -182,7 +188,7 @@ class RegexBuilder:
         min_qty: int | None = None,
         max_qty: int | None = None,
         special_quantifier: str | None = None
-    ):
+    ) -> 'RegexBuilder':
         """
         Adds a whitespace-matching pattern (`\\s`) to the current regex expression.
 
@@ -199,7 +205,7 @@ class RegexBuilder:
             special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
 
         Returns:
-            Self: Enables method chaining.
+            self: Enables method chaining.
         """
 
         quantifier, explanation = self._get_quantifier_and_explanation(
@@ -220,7 +226,7 @@ class RegexBuilder:
         min_qty: int | None = None,
         max_qty: int | None = None,
         special_quantifier: str | None = None
-    ):
+    ) -> 'RegexBuilder':
         """
         Adds a non-whitespace-matching pattern (`\\S`) to the current regex expression.
 
@@ -237,7 +243,7 @@ class RegexBuilder:
             special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
 
         Returns:
-            Self: Enables method chaining.
+            self: Enables method chaining.
         """
 
         quantifier, explanation = self._get_quantifier_and_explanation(
@@ -252,7 +258,7 @@ class RegexBuilder:
         self._explanations.append(explanation)
         return self
 
-    def end_anchor(self, multiline: bool = False):
+    def end_anchor(self, multiline: bool = False) -> 'RegexBuilder':
         """
         Adds an end-of-line or end-of-text anchor to the regex pattern.
 
@@ -272,7 +278,7 @@ class RegexBuilder:
         self._explanations.append(explanation)
         return self
     
-    def word_boundary(self):
+    def word_boundary(self) -> 'RegexBuilder':
         """
         Adds a word boundary anchor (`\\b`) to the regex pattern.
 
@@ -288,7 +294,7 @@ class RegexBuilder:
         self._explanations.append("Word boundary")
         return self
 
-    def non_word_boundary(self):
+    def non_word_boundary(self) -> 'RegexBuilder':
         """
         Adds a non-word-boundary anchor (`\\B`) to the regex pattern.
 
@@ -311,7 +317,7 @@ class RegexBuilder:
         max_qty: int | None = None,
         special_quantifier: str | None = None,
         capturing: bool = False
-    ):
+    ) -> 'RegexBuilder':
         """
         Adds a literal (exact) string to the regex pattern, escaping special characters.
 
@@ -357,7 +363,7 @@ class RegexBuilder:
 
         return self
 
-    def start_group(self, capturing: bool = False):
+    def start_group(self, capturing: bool = False) -> 'RegexBuilder':
         """
         Starts a new group in the regex pattern.
 
@@ -376,12 +382,12 @@ class RegexBuilder:
         return self
 
     def end_group(
-    self,
-    qty: int | None = None,
-    min_qty: int | None = None,
-    max_qty: int | None = None,
-    special_quantifier: str | None = None
-):
+        self,
+        qty: int | None = None,
+        min_qty: int | None = None,
+        max_qty: int | None = None,
+        special_quantifier: str | None = None
+    ) -> 'RegexBuilder':
         """
         Ends the most recently opened group and optionally applies quantifiers to it.
 
@@ -418,24 +424,84 @@ class RegexBuilder:
         return self
 
     def lookahead(self, builder: 'RegexBuilder') -> 'RegexBuilder':
+        """
+        Adds a positive lookahead assertion to the regex pattern.
+
+        Creates a positive lookahead (?=pattern) that matches a position where
+        the given pattern would match, without consuming characters.
+
+        Args:
+            builder (RegexBuilder): Another RegexBuilder containing the pattern to look ahead for.
+
+        Returns:
+            self: Enables method chaining.
+
+        Raises:
+            TypeError: If builder is not a RegexBuilder instance.
+        """
         subpattern, explanation = self._process_lookaround_pattern(builder)
         self._pattern_parts.append(f"(?={subpattern})")
         self._explanations.append(f'if followed by {explanation}')
         return self
     
     def negative_lookahead(self, builder: 'RegexBuilder') -> 'RegexBuilder':
+        """
+        Adds a negative lookahead assertion to the regex pattern.
+
+        Creates a negative lookahead (?!pattern) that matches a position where
+        the given pattern would NOT match, without consuming characters.
+
+        Args:
+            builder (RegexBuilder): Another RegexBuilder containing the pattern to look ahead for.
+
+        Returns:
+            self: Enables method chaining.
+
+        Raises:
+            TypeError: If builder is not a RegexBuilder instance.
+        """
         subpattern, explanation = self._process_lookaround_pattern(builder)
         self._pattern_parts.append(f"(?!{subpattern})")
         self._explanations.append(f'if not followed by {explanation}')
         return self
 
     def lookbehind(self, builder: 'RegexBuilder') -> 'RegexBuilder':
+        """
+        Adds a positive lookbehind assertion to the regex pattern.
+
+        Creates a positive lookbehind (?<=pattern) that matches a position where
+        the given pattern would match before this position, without consuming characters.
+
+        Args:
+            builder (RegexBuilder): Another RegexBuilder containing the pattern to look behind for.
+
+        Returns:
+            self: Enables method chaining.
+
+        Raises:
+            TypeError: If builder is not a RegexBuilder instance.
+        """
         subpattern, explanation = self._process_lookaround_pattern(builder)
         self._pattern_parts.append(f"(?<={subpattern})")
         self._explanations.append(f'if preceded by {explanation}')
         return self
     
     def negative_lookbehind(self, builder: 'RegexBuilder') -> 'RegexBuilder':
+        """
+        Adds a negative lookbehind assertion to the regex pattern.
+
+        Creates a negative lookbehind (?<!pattern) that matches a position where
+        the given pattern would NOT match before this position, without consuming characters.
+
+        Args:
+            builder (RegexBuilder): Another RegexBuilder containing the pattern to look behind for.
+
+        Returns:
+            self: Enables method chaining.
+
+        Raises:
+            TypeError: If builder is not a RegexBuilder instance.
+        """
         subpattern, explanation = self._process_lookaround_pattern(builder)
         self._pattern_parts.append(f"(?<!{subpattern})")
         self._explanations.append(f'if not preceded by {explanation}')
@@ -449,7 +515,7 @@ class RegexBuilder:
         min_qty: int | None = None,
         max_qty: int | None = None,
         special_quantifier: str | None = None
-    ):
+    ) -> 'RegexBuilder':
         """
         Adds a character class with specific characters to the regex pattern.
 
@@ -509,7 +575,7 @@ class RegexBuilder:
         min_qty: int | None = None,
         max_qty: int | None = None,
         special_quantifier: str | None = None
-    ):
+    ) -> 'RegexBuilder':
         """
         Adds a character range to the regex pattern.
 
@@ -566,7 +632,7 @@ class RegexBuilder:
         min_qty: int | None = None,
         max_qty: int | None = None,
         special_quantifier: str | None = None
-    ):
+    ) -> 'RegexBuilder':
         """
         Adds multiple character ranges to the regex pattern.
 
@@ -630,7 +696,7 @@ class RegexBuilder:
         min_qty: int | None = None,
         max_qty: int | None = None,
         special_quantifier: str | None = None
-    ):
+    ) -> 'RegexBuilder':
         """
         Adds a mixed character class combining individual characters, ranges, and escape sequences.
 
@@ -720,14 +786,23 @@ class RegexBuilder:
         return self
 
     def build(self) -> str:
+        """
+        Builds and returns the complete regex pattern as a string.
+
+        Concatenates all pattern parts that have been added through method calls
+        into a single regex pattern string.
+
+        Returns:
+            str: The complete regex pattern ready for compilation or direct use.
+        """
         return ''.join(self._pattern_parts)
     
-    def compile(self):
+    def compile(self) -> re.Pattern[str]:
         """
         Compiles the regex pattern with all defined parts and flags.
 
         Returns:
-            re.Pattern: A compiled regular expression object using re.compile().
+            re.Pattern[str]: A compiled regular expression object using re.compile().
         """
         # Combine flags using bitwise OR to form a proper mask
         flags_mask = 0
@@ -735,11 +810,20 @@ class RegexBuilder:
             flags_mask |= int(f)
         return re.compile(self.build(), flags=flags_mask)
 
-    def explain(self):
+    def explain(self) -> list[str]:
+        """
+        Returns human-readable explanations for all parts of the regex pattern.
+
+        Converts all explanation items to strings and returns them as a list.
+        Each item explains what a specific part of the regex pattern does.
+
+        Returns:
+            list[str]: List of explanation strings for each pattern component.
+        """
         # Always return strings - convert any non-string items to string representation
         return [str(item) for item in self._explanations]
     
-    def enable_multiline(self, enabled: bool = True):
+    def enable_multiline(self, enabled: bool = True) -> 'RegexBuilder':
         """
         Enables or disables the MULTILINE flag in the regex.
 
@@ -754,7 +838,7 @@ class RegexBuilder:
         self._set_flag(re.MULTILINE, enabled)
         return self
 
-    def enable_ignorecase(self, enabled: bool = True):
+    def enable_ignorecase(self, enabled: bool = True) -> 'RegexBuilder':
         """
         Enables or disables case-insensitive matching (IGNORECASE flag).
 
@@ -769,7 +853,7 @@ class RegexBuilder:
         self._set_flag(re.IGNORECASE, enabled)
         return self
     
-    def enable_dotall(self, enabled: bool = True):
+    def enable_dotall(self, enabled: bool = True) -> 'RegexBuilder':
         """
         Enables or disables the DOTALL flag, affecting dot (.) behavior.
 
@@ -784,13 +868,16 @@ class RegexBuilder:
         self._set_flag(re.DOTALL, enabled)
         return self
 
-    def _set_flag(self, flag: re.RegexFlag, enabled: bool):
+    def _set_flag(self, flag: re.RegexFlag, enabled: bool) -> None:
         """
         Adds or removes a regex flag from the internal set.
 
         Args:
             flag (re.RegexFlag): The regex flag to enable or disable.
             enabled (bool): Whether to enable (add) or disable (remove) the flag.
+
+        Returns:
+            None
         """
         if enabled:
             self._flags.add(flag)
@@ -1065,6 +1152,23 @@ class RegexBuilder:
         return "", f"Exactly 1 {singular}"
 
     def _process_lookaround_pattern(self, builder: 'RegexBuilder') -> tuple[str, str]:
+        """
+        Processes a RegexBuilder instance for use in lookaround assertions.
+
+        Extracts the pattern and explanation from another RegexBuilder to be used
+        in lookahead, lookbehind, and their negative variants.
+
+        Args:
+            builder (RegexBuilder): Another RegexBuilder containing the pattern for lookaround.
+
+        Returns:
+            tuple[str, str]: A tuple containing (subpattern, explanation) where:
+                - subpattern: The regex pattern string from the builder
+                - explanation: Human-readable explanation, or subpattern if no explanation available
+
+        Raises:
+            TypeError: If builder is not a RegexBuilder instance.
+        """
         if not isinstance(builder, RegexBuilder):
             raise TypeError("Lookaround pattern must be a RegexBuilder instance.")
 
