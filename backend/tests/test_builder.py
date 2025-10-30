@@ -1,5 +1,7 @@
 import re
+
 import pytest
+
 from src.builder import RegexBuilder
 
 
@@ -83,10 +85,10 @@ def test_process_lookaround_type_error():
     # Test TypeError when passing non-RegexBuilder to lookaround methods
     main = RegexBuilder()
     with pytest.raises(TypeError):
-        main.lookahead("not_a_builder")
+        main.lookahead("not_a_builder")  # type: ignore[arg-type]
     
     with pytest.raises(TypeError):
-        main.negative_lookbehind(123)
+        main.negative_lookbehind(123)  # type: ignore[arg-type]
 
 
 def test_literal_special_characters_escaping():
@@ -118,7 +120,7 @@ def test_chaining_composition_and_explanations():
 def test_explain_always_returns_strings():
     b = RegexBuilder()
     # Manually insert non-string items to test robustness
-    b._explanations = ["text", 123, 45.6, None, True, []]
+    b._explanations = ["text", 123, 45.6, None, True, []]  # type: ignore[list-item]
     
     explanations = b.explain()
     # All items should be converted to strings
@@ -132,7 +134,7 @@ def test_explain_always_returns_strings():
 
 def test_parametrized_quantifiers():
     # Test various quantifier combinations
-    test_cases = [
+    test_cases: list[tuple[dict[str, int | str], str]] = [
         ({"qty": 3}, r"\d{3}"),
         ({"min_qty": 2, "max_qty": 5}, r"\d{2,5}"),
         ({"min_qty": 1}, r"\d{1,}"),
@@ -143,7 +145,7 @@ def test_parametrized_quantifiers():
     ]
     
     for kwargs, expected_pattern in test_cases:
-        b = RegexBuilder().digits(**kwargs)
+        b = RegexBuilder().digits(**kwargs)  # type: ignore[arg-type]
         assert expected_pattern in b.build()
 
 

@@ -1,12 +1,13 @@
 import re
 
+
 class RegexBuilder:
     # Mapping of `re` module flags to a human-readable name and description.
     # Used to display flag information in the interface and generate documentation.
     FLAG_INFO = {
         re.MULTILINE: ("MULTILINE", "Makes ^ and $ match the start and end of each line."),
         re.IGNORECASE: ("IGNORECASE", "Enables case-insensitive matching."),
-        re.DOTALL: ("DOTALL", "Makes dot (.) match newline characters as well.")
+        re.DOTALL: ("DOTALL", "Makes dot (.) match newline characters as well."),
     }
 
     def __init__(self) -> None:
@@ -16,19 +17,19 @@ class RegexBuilder:
         Sets up empty pattern parts, explanations, and flags collections for building
         a regex pattern through method chaining.
         """
-        self._pattern_parts = []
-        self._explanations = []
-        self._flags = set()
+        self._pattern_parts: list[str] = []
+        self._explanations: list[str] = []
+        self._flags: set[re.RegexFlag] = set()
 
-    def start_anchor(self, multiline: bool = False) -> 'RegexBuilder':
+    def start_anchor(self, multiline: bool = False) -> "RegexBuilder":
         """
         Adds a start-of-line or start-of-text anchor to the regex pattern.
 
         Args:
-            multiline (bool, optional): 
-                If True, uses '^' to match the beginning of each line 
+            multiline (bool, optional):
+                If True, uses '^' to match the beginning of each line
                 (when re.MULTILINE is enabled).
-                If False (default), uses '\\A' to match only the start 
+                If False (default), uses '\\A' to match only the start
                 of the entire input string.
 
         Returns:
@@ -39,14 +40,14 @@ class RegexBuilder:
         self._pattern_parts.append(anchor)
         self._explanations.append(explanation)
         return self
-    
+
     def digits(
         self,
         qty: int | None = None,
         min_qty: int | None = None,
         max_qty: int | None = None,
-        special_quantifier: str | None = None
-    ) -> 'RegexBuilder':
+        special_quantifier: str | None = None,
+    ) -> "RegexBuilder":
         """
         Adds a digit-matching pattern (`\\d`) to the current regex expression.
 
@@ -68,7 +69,7 @@ class RegexBuilder:
             min_qty=min_qty,
             max_qty=max_qty,
             special_quantifier=special_quantifier,
-            unit_names=("digit", "digits")
+            unit_names=("digit", "digits"),
         )
 
         self._pattern_parts.append(r"\d" + quantifier)
@@ -80,8 +81,8 @@ class RegexBuilder:
         qty: int | None = None,
         min_qty: int | None = None,
         max_qty: int | None = None,
-        special_quantifier: str | None = None
-    ) -> 'RegexBuilder':
+        special_quantifier: str | None = None,
+    ) -> "RegexBuilder":
         """
         Adds a non-digit-matching pattern (`\\D`) to the current regex expression.
 
@@ -103,7 +104,7 @@ class RegexBuilder:
             min_qty=min_qty,
             max_qty=max_qty,
             special_quantifier=special_quantifier,
-            unit_names=("non-digit character", "non-digit characters")
+            unit_names=("non-digit character", "non-digit characters"),
         )
 
         self._pattern_parts.append(r"\D" + quantifier)
@@ -115,8 +116,8 @@ class RegexBuilder:
         qty: int | None = None,
         min_qty: int | None = None,
         max_qty: int | None = None,
-        special_quantifier: str | None = None
-    ) -> 'RegexBuilder':
+        special_quantifier: str | None = None,
+    ) -> "RegexBuilder":
         """
         Adds a word character-matching pattern (`\\w`) to the current regex expression.
 
@@ -139,7 +140,7 @@ class RegexBuilder:
             min_qty=min_qty,
             max_qty=max_qty,
             special_quantifier=special_quantifier,
-            unit_names=("word character", "word characters")
+            unit_names=("word character", "word characters"),
         )
 
         self._pattern_parts.append(r"\w" + quantifier)
@@ -151,8 +152,8 @@ class RegexBuilder:
         qty: int | None = None,
         min_qty: int | None = None,
         max_qty: int | None = None,
-        special_quantifier: str | None = None
-    ) -> 'RegexBuilder':
+        special_quantifier: str | None = None,
+    ) -> "RegexBuilder":
         """
         Adds a non-word character-matching pattern (`\\W`) to the current regex expression.
 
@@ -175,7 +176,7 @@ class RegexBuilder:
             min_qty=min_qty,
             max_qty=max_qty,
             special_quantifier=special_quantifier,
-            unit_names=("non-word character", "non-word characters")
+            unit_names=("non-word character", "non-word characters"),
         )
 
         self._pattern_parts.append(r"\W" + quantifier)
@@ -187,8 +188,8 @@ class RegexBuilder:
         qty: int | None = None,
         min_qty: int | None = None,
         max_qty: int | None = None,
-        special_quantifier: str | None = None
-    ) -> 'RegexBuilder':
+        special_quantifier: str | None = None,
+    ) -> "RegexBuilder":
         """
         Adds a whitespace-matching pattern (`\\s`) to the current regex expression.
 
@@ -213,7 +214,7 @@ class RegexBuilder:
             min_qty=min_qty,
             max_qty=max_qty,
             special_quantifier=special_quantifier,
-            unit_names=("whitespace character", "whitespace characters")
+            unit_names=("whitespace character", "whitespace characters"),
         )
 
         self._pattern_parts.append(r"\s" + quantifier)
@@ -225,8 +226,8 @@ class RegexBuilder:
         qty: int | None = None,
         min_qty: int | None = None,
         max_qty: int | None = None,
-        special_quantifier: str | None = None
-    ) -> 'RegexBuilder':
+        special_quantifier: str | None = None,
+    ) -> "RegexBuilder":
         """
         Adds a non-whitespace-matching pattern (`\\S`) to the current regex expression.
 
@@ -251,22 +252,22 @@ class RegexBuilder:
             min_qty=min_qty,
             max_qty=max_qty,
             special_quantifier=special_quantifier,
-            unit_names=("non-whitespace character", "non-whitespace characters")
+            unit_names=("non-whitespace character", "non-whitespace characters"),
         )
 
         self._pattern_parts.append(r"\S" + quantifier)
         self._explanations.append(explanation)
         return self
 
-    def end_anchor(self, multiline: bool = False) -> 'RegexBuilder':
+    def end_anchor(self, multiline: bool = False) -> "RegexBuilder":
         """
         Adds an end-of-line or end-of-text anchor to the regex pattern.
 
         Args:
             multiline (bool, optional):
-                If True, uses '$' to match the ending of each line 
+                If True, uses '$' to match the ending of each line
                 (when re.MULTILINE is enabled).
-                If False (default), uses '\\Z' to match only the start 
+                If False (default), uses '\\Z' to match only the start
                 of the entire input string.
 
         Returns:
@@ -277,8 +278,8 @@ class RegexBuilder:
         self._pattern_parts.append(anchor)
         self._explanations.append(explanation)
         return self
-    
-    def word_boundary(self) -> 'RegexBuilder':
+
+    def word_boundary(self) -> "RegexBuilder":
         """
         Adds a word boundary anchor (`\\b`) to the regex pattern.
 
@@ -294,7 +295,7 @@ class RegexBuilder:
         self._explanations.append("Word boundary")
         return self
 
-    def non_word_boundary(self) -> 'RegexBuilder':
+    def non_word_boundary(self) -> "RegexBuilder":
         """
         Adds a non-word-boundary anchor (`\\B`) to the regex pattern.
 
@@ -316,8 +317,8 @@ class RegexBuilder:
         min_qty: int | None = None,
         max_qty: int | None = None,
         special_quantifier: str | None = None,
-        capturing: bool = False
-    ) -> 'RegexBuilder':
+        capturing: bool = False,
+    ) -> "RegexBuilder":
         """
         Adds a literal (exact) string to the regex pattern, escaping special characters.
 
@@ -347,7 +348,7 @@ class RegexBuilder:
             min_qty=min_qty,
             max_qty=max_qty,
             special_quantifier=special_quantifier,
-            unit_names=unit_names
+            unit_names=unit_names,
         )
 
         # Group the literal if it has more than 1 character and quantifier is used
@@ -357,19 +358,17 @@ class RegexBuilder:
         self._pattern_parts.append(escaped + quantifier)
 
         # Final explanation
-        self._explanations.append(
-            f'"{text}"' if not quantifier else f'{explanation}: "{text}"'
-        )
+        self._explanations.append(f'"{text}"' if not quantifier else f'{explanation}: "{text}"')
 
         return self
 
-    def start_group(self, capturing: bool = False) -> 'RegexBuilder':
+    def start_group(self, capturing: bool = False) -> "RegexBuilder":
         """
         Starts a new group in the regex pattern.
 
         Args:
-            capturing (bool, optional): 
-                If True, creates a capturing group using '()'. 
+            capturing (bool, optional):
+                If True, creates a capturing group using '()'.
                 If False (default), creates a non-capturing group using '(?:)'.
 
         Returns:
@@ -386,8 +385,8 @@ class RegexBuilder:
         qty: int | None = None,
         min_qty: int | None = None,
         max_qty: int | None = None,
-        special_quantifier: str | None = None
-    ) -> 'RegexBuilder':
+        special_quantifier: str | None = None,
+    ) -> "RegexBuilder":
         """
         Ends the most recently opened group and optionally applies quantifiers to it.
 
@@ -412,7 +411,7 @@ class RegexBuilder:
             min_qty=min_qty,
             max_qty=max_qty,
             special_quantifier=special_quantifier,
-            unit_names=unit_names
+            unit_names=unit_names,
         )
 
         if quantifier:
@@ -423,7 +422,7 @@ class RegexBuilder:
 
         return self
 
-    def lookahead(self, builder: 'RegexBuilder') -> 'RegexBuilder':
+    def lookahead(self, builder: "RegexBuilder") -> "RegexBuilder":
         """
         Adds a positive lookahead assertion to the regex pattern.
 
@@ -441,10 +440,10 @@ class RegexBuilder:
         """
         subpattern, explanation = self._process_lookaround_pattern(builder)
         self._pattern_parts.append(f"(?={subpattern})")
-        self._explanations.append(f'if followed by {explanation}')
+        self._explanations.append(f"if followed by {explanation}")
         return self
-    
-    def negative_lookahead(self, builder: 'RegexBuilder') -> 'RegexBuilder':
+
+    def negative_lookahead(self, builder: "RegexBuilder") -> "RegexBuilder":
         """
         Adds a negative lookahead assertion to the regex pattern.
 
@@ -462,10 +461,10 @@ class RegexBuilder:
         """
         subpattern, explanation = self._process_lookaround_pattern(builder)
         self._pattern_parts.append(f"(?!{subpattern})")
-        self._explanations.append(f'if not followed by {explanation}')
+        self._explanations.append(f"if not followed by {explanation}")
         return self
 
-    def lookbehind(self, builder: 'RegexBuilder') -> 'RegexBuilder':
+    def lookbehind(self, builder: "RegexBuilder") -> "RegexBuilder":
         """
         Adds a positive lookbehind assertion to the regex pattern.
 
@@ -483,10 +482,10 @@ class RegexBuilder:
         """
         subpattern, explanation = self._process_lookaround_pattern(builder)
         self._pattern_parts.append(f"(?<={subpattern})")
-        self._explanations.append(f'if preceded by {explanation}')
+        self._explanations.append(f"if preceded by {explanation}")
         return self
-    
-    def negative_lookbehind(self, builder: 'RegexBuilder') -> 'RegexBuilder':
+
+    def negative_lookbehind(self, builder: "RegexBuilder") -> "RegexBuilder":
         """
         Adds a negative lookbehind assertion to the regex pattern.
 
@@ -504,7 +503,7 @@ class RegexBuilder:
         """
         subpattern, explanation = self._process_lookaround_pattern(builder)
         self._pattern_parts.append(f"(?<!{subpattern})")
-        self._explanations.append(f'if not preceded by {explanation}')
+        self._explanations.append(f"if not preceded by {explanation}")
         return self
 
     def char_class(
@@ -514,8 +513,8 @@ class RegexBuilder:
         qty: int | None = None,
         min_qty: int | None = None,
         max_qty: int | None = None,
-        special_quantifier: str | None = None
-    ) -> 'RegexBuilder':
+        special_quantifier: str | None = None,
+    ) -> "RegexBuilder":
         """
         Adds a character class with specific characters to the regex pattern.
 
@@ -538,14 +537,14 @@ class RegexBuilder:
         """
         if not chars:
             raise ValueError("Character class cannot be empty")
-        
+
         # Validate and escape characters for use in character class
         escaped_chars = self._escape_char_class_chars(chars)
-        
+
         # Build the character class
         prefix = "^" if negated else ""
         char_class = f"[{prefix}{escaped_chars}]"
-        
+
         # Handle quantifiers
         unit_names = ("character from class", "characters from class")
         quantifier, explanation = self._get_quantifier_and_explanation(
@@ -553,16 +552,18 @@ class RegexBuilder:
             min_qty=min_qty,
             max_qty=max_qty,
             special_quantifier=special_quantifier,
-            unit_names=unit_names
+            unit_names=unit_names,
         )
-        
+
         self._pattern_parts.append(char_class + quantifier)
-        
+
         # Build explanation
-        char_display = ''.join(sorted(set(chars)))  # Remove duplicates and sort for display
+        char_display = "".join(sorted(set(chars)))  # Remove duplicates and sort for display
         base_explanation = f"Any character {'NOT ' if negated else ''}in '{char_display}'"
-        final_explanation = base_explanation if not quantifier else f"{explanation}: {base_explanation}"
-        
+        final_explanation = (
+            base_explanation if not quantifier else f"{explanation}: {base_explanation}"
+        )
+
         self._explanations.append(final_explanation)
         return self
 
@@ -574,8 +575,8 @@ class RegexBuilder:
         qty: int | None = None,
         min_qty: int | None = None,
         max_qty: int | None = None,
-        special_quantifier: str | None = None
-    ) -> 'RegexBuilder':
+        special_quantifier: str | None = None,
+    ) -> "RegexBuilder":
         """
         Adds a character range to the regex pattern.
 
@@ -599,11 +600,11 @@ class RegexBuilder:
         """
         # Validate the range
         self._validate_char_range(start, end)
-        
+
         # Build the character class with range
         prefix = "^" if negated else ""
         char_class = f"[{prefix}{start}-{end}]"
-        
+
         # Handle quantifiers
         unit_names = ("character from range", "characters from range")
         quantifier, explanation = self._get_quantifier_and_explanation(
@@ -611,16 +612,18 @@ class RegexBuilder:
             min_qty=min_qty,
             max_qty=max_qty,
             special_quantifier=special_quantifier,
-            unit_names=unit_names
+            unit_names=unit_names,
         )
-        
+
         self._pattern_parts.append(char_class + quantifier)
-        
+
         # Build explanation
         range_description = f"'{start}' to '{end}'"
         base_explanation = f"Any character {'NOT ' if negated else ''}in range {range_description}"
-        final_explanation = base_explanation if not quantifier else f"{explanation}: {base_explanation}"
-        
+        final_explanation = (
+            base_explanation if not quantifier else f"{explanation}: {base_explanation}"
+        )
+
         self._explanations.append(final_explanation)
         return self
 
@@ -631,8 +634,8 @@ class RegexBuilder:
         qty: int | None = None,
         min_qty: int | None = None,
         max_qty: int | None = None,
-        special_quantifier: str | None = None
-    ) -> 'RegexBuilder':
+        special_quantifier: str | None = None,
+    ) -> "RegexBuilder":
         """
         Adds multiple character ranges to the regex pattern.
 
@@ -655,16 +658,16 @@ class RegexBuilder:
         """
         if not ranges:
             raise ValueError("Ranges list cannot be empty")
-        
+
         # Validate all ranges
         for start, end in ranges:
             self._validate_char_range(start, end)
-        
+
         # Build the character class with multiple ranges
         range_parts = [f"{start}-{end}" for start, end in ranges]
         prefix = "^" if negated else ""
         char_class = f"[{prefix}{''.join(range_parts)}]"
-        
+
         # Handle quantifiers
         unit_names = ("character from ranges", "characters from ranges")
         quantifier, explanation = self._get_quantifier_and_explanation(
@@ -672,17 +675,19 @@ class RegexBuilder:
             min_qty=min_qty,
             max_qty=max_qty,
             special_quantifier=special_quantifier,
-            unit_names=unit_names
+            unit_names=unit_names,
         )
-        
+
         self._pattern_parts.append(char_class + quantifier)
-        
+
         # Build explanation
         range_descriptions = [f"'{start}'-'{end}'" for start, end in ranges]
         ranges_text = ", ".join(range_descriptions)
         base_explanation = f"Any character {'NOT ' if negated else ''}in ranges: {ranges_text}"
-        final_explanation = base_explanation if not quantifier else f"{explanation}: {base_explanation}"
-        
+        final_explanation = (
+            base_explanation if not quantifier else f"{explanation}: {base_explanation}"
+        )
+
         self._explanations.append(final_explanation)
         return self
 
@@ -695,15 +700,15 @@ class RegexBuilder:
         qty: int | None = None,
         min_qty: int | None = None,
         max_qty: int | None = None,
-        special_quantifier: str | None = None
-    ) -> 'RegexBuilder':
+        special_quantifier: str | None = None,
+    ) -> "RegexBuilder":
         """
         Adds a mixed character class combining individual characters, ranges, and escape sequences.
 
-        Creates complex character classes like [a-zA-Z0-9\s._-] that can include:
+        Creates complex character classes like [a-zA-Z0-9\\s._-] that can include:
         - Individual characters
         - Character ranges
-        - Escape sequences (\d, \w, \s, etc.)
+        - Escape sequences (\\d, \\w, \\s, etc.)
 
         Args:
             chars (str, optional): Individual characters to include. Defaults to "".
@@ -725,36 +730,38 @@ class RegexBuilder:
         has_chars = bool(chars)
         has_ranges = bool(ranges)
         has_escapes = bool(escape_sequences)
-        
+
         if not (has_chars or has_ranges or has_escapes):
-            raise ValueError("Character class cannot be empty - provide chars, ranges, or escape_sequences")
-        
+            raise ValueError(
+                "Character class cannot be empty - provide chars, ranges, or escape_sequences"
+            )
+
         # Build the parts of the character class
         class_parts = []
-        
+
         # Add individual characters (escaped)
         if chars:
             # In mixed classes, we need to escape hyphens even at the end if there are ranges/escapes after
             has_content_after = bool(ranges) or bool(escape_sequences)
             escaped_chars = self._escape_char_class_chars_mixed(chars, has_content_after)
             class_parts.append(escaped_chars)
-        
+
         # Add ranges
         if ranges:
             for start, end in ranges:
                 self._validate_char_range(start, end)
                 class_parts.append(f"{start}-{end}")
-        
+
         # Add escape sequences
         if escape_sequences:
             for seq in escape_sequences:
                 self._validate_escape_sequence(seq)
                 class_parts.append(seq)
-        
+
         # Build the character class
         prefix = "^" if negated else ""
         char_class = f"[{prefix}{''.join(class_parts)}]"
-        
+
         # Handle quantifiers
         unit_names = ("character from class", "characters from class")
         quantifier, explanation = self._get_quantifier_and_explanation(
@@ -762,26 +769,30 @@ class RegexBuilder:
             min_qty=min_qty,
             max_qty=max_qty,
             special_quantifier=special_quantifier,
-            unit_names=unit_names
+            unit_names=unit_names,
         )
-        
+
         self._pattern_parts.append(char_class + quantifier)
-        
+
         # Build explanation
         explanation_parts = []
         if chars:
-            char_display = ''.join(sorted(set(chars)))
+            char_display = "".join(sorted(set(chars)))
             explanation_parts.append(f"characters '{char_display}'")
         if ranges:
             range_descriptions = [f"'{start}'-'{end}'" for start, end in ranges]
             explanation_parts.append(f"ranges {', '.join(range_descriptions)}")
         if escape_sequences:
             explanation_parts.append(f"escape sequences {', '.join(escape_sequences)}")
-        
+
         combined_description = ", ".join(explanation_parts)
-        base_explanation = f"Any character {'NOT ' if negated else ''}matching: {combined_description}"
-        final_explanation = base_explanation if not quantifier else f"{explanation}: {base_explanation}"
-        
+        base_explanation = (
+            f"Any character {'NOT ' if negated else ''}matching: {combined_description}"
+        )
+        final_explanation = (
+            base_explanation if not quantifier else f"{explanation}: {base_explanation}"
+        )
+
         self._explanations.append(final_explanation)
         return self
 
@@ -795,8 +806,8 @@ class RegexBuilder:
         Returns:
             str: The complete regex pattern ready for compilation or direct use.
         """
-        return ''.join(self._pattern_parts)
-    
+        return "".join(self._pattern_parts)
+
     def compile(self) -> re.Pattern[str]:
         """
         Compiles the regex pattern with all defined parts and flags.
@@ -822,8 +833,8 @@ class RegexBuilder:
         """
         # Always return strings - convert any non-string items to string representation
         return [str(item) for item in self._explanations]
-    
-    def enable_multiline(self, enabled: bool = True) -> 'RegexBuilder':
+
+    def enable_multiline(self, enabled: bool = True) -> "RegexBuilder":
         """
         Enables or disables the MULTILINE flag in the regex.
 
@@ -838,7 +849,7 @@ class RegexBuilder:
         self._set_flag(re.MULTILINE, enabled)
         return self
 
-    def enable_ignorecase(self, enabled: bool = True) -> 'RegexBuilder':
+    def enable_ignorecase(self, enabled: bool = True) -> "RegexBuilder":
         """
         Enables or disables case-insensitive matching (IGNORECASE flag).
 
@@ -852,8 +863,8 @@ class RegexBuilder:
         """
         self._set_flag(re.IGNORECASE, enabled)
         return self
-    
-    def enable_dotall(self, enabled: bool = True) -> 'RegexBuilder':
+
+    def enable_dotall(self, enabled: bool = True) -> "RegexBuilder":
         """
         Enables or disables the DOTALL flag, affecting dot (.) behavior.
 
@@ -897,39 +908,45 @@ class RegexBuilder:
         """
         if not isinstance(start, str) or not isinstance(end, str):
             raise ValueError("Range characters must be strings")
-        
+
         if len(start) != 1:
-            raise ValueError(f"Range start must be a single character, got: '{start}' (length {len(start)})")
-        
+            raise ValueError(
+                f"Range start must be a single character, got: '{start}' (length {len(start)})"
+            )
+
         if len(end) != 1:
-            raise ValueError(f"Range end must be a single character, got: '{end}' (length {len(end)})")
-        
+            raise ValueError(
+                f"Range end must be a single character, got: '{end}' (length {len(end)})"
+            )
+
         start_ord = ord(start)
         end_ord = ord(end)
-        
+
         if start_ord > end_ord:
             raise ValueError(
                 f"Invalid range '{start}-{end}': start character '{start}' (ASCII {start_ord}) "
                 f"must be <= end character '{end}' (ASCII {end_ord})"
             )
-        
+
         # Check for potentially confusing ranges that cross character types
         if start.isalpha() != end.isalpha() and start_ord != end_ord:
             import warnings
+
             warnings.warn(
                 f"Range '{start}-{end}' crosses character types (letter/non-letter). "
                 "This may match unexpected characters.",
                 UserWarning,
-                stacklevel=3
+                stacklevel=3,
             )
-        
+
         if start.isdigit() != end.isdigit() and start_ord != end_ord:
             import warnings
+
             warnings.warn(
                 f"Range '{start}-{end}' crosses character types (digit/non-digit). "
                 "This may match unexpected characters.",
                 UserWarning,
-                stacklevel=3
+                stacklevel=3,
             )
 
     def _escape_char_class_chars(self, chars: str) -> str:
@@ -938,7 +955,7 @@ class RegexBuilder:
 
         Inside character classes [], certain characters have special meaning and need escaping:
         - ] closes the character class (always needs escaping)
-        - \ is the escape character (always needs escaping)  
+        - \\ is the escape character (always needs escaping)
         - ^ negates the class (only when at the start)
         - - creates ranges (only when between two characters)
 
@@ -953,101 +970,105 @@ class RegexBuilder:
         """
         if not chars:
             raise ValueError("Cannot escape empty character string")
-        
-        if '\x00' in chars:
+
+        if "\x00" in chars:
             raise ValueError("Null character (\\x00) not allowed in character class")
-        
+
         # Check for non-ASCII characters and warn if found
         try:
-            chars.encode('ascii')
+            chars.encode("ascii")
         except UnicodeEncodeError:
             import warnings
+
             non_ascii = [c for c in chars if ord(c) > 127]
             warnings.warn(
                 f"Non-ASCII characters detected: {non_ascii}. "
                 "Ensure proper encoding handling in your regex engine.",
                 UserWarning,
-                stacklevel=3
+                stacklevel=3,
             )
-        
+
         escaped = ""
         for i, char in enumerate(chars):
-            if char == ']':
+            if char == "]":
                 # ] always needs escaping inside character class
-                escaped += r'\]'
-            elif char == '\\':
+                escaped += r"\]"
+            elif char == "\\":
                 # \ always needs escaping
-                escaped += r'\\'
-            elif char == '^' and i == 0:
+                escaped += r"\\"
+            elif char == "^" and i == 0:
                 # ^ only needs escaping if it's the first character (negation)
-                escaped += r'\^'
-            elif char == '-' and 0 < i < len(chars) - 1:
+                escaped += r"\^"
+            elif char == "-" and 0 < i < len(chars) - 1:
                 # - only needs escaping if it's in the middle (could be interpreted as range)
-                escaped += r'\-'
+                escaped += r"\-"
             else:
                 # All other characters are safe in character classes
                 escaped += char
-        
+
         return escaped
 
     def _escape_char_class_chars_mixed(self, chars: str, has_content_after: bool = False) -> str:
         """
         Escapes special characters for use inside mixed character classes.
-        
+
         This is similar to _escape_char_class_chars but handles the case where
         characters are mixed with ranges or escape sequences, requiring different
         escaping rules for hyphens.
-        
+
         Args:
             chars (str): Characters to escape for use in character class.
             has_content_after (bool): Whether there will be ranges or escape sequences after these chars.
-        
+
         Returns:
             str: Escaped characters safe for use in mixed character classes.
         """
         if not chars:
             raise ValueError("Cannot escape empty character string")
-        
-        if '\x00' in chars:
+
+        if "\x00" in chars:
             raise ValueError("Null character (\\x00) not allowed in character class")
-        
+
         # Check for non-ASCII characters and warn if found
         try:
-            chars.encode('ascii')
+            chars.encode("ascii")
         except UnicodeEncodeError:
             import warnings
+
             non_ascii = [c for c in chars if ord(c) > 127]
             warnings.warn(
                 f"Non-ASCII characters detected: {non_ascii}. "
                 "Ensure proper encoding handling in your regex engine.",
                 UserWarning,
-                stacklevel=3
+                stacklevel=3,
             )
-        
+
         escaped = ""
         for i, char in enumerate(chars):
-            if char == ']':
+            if char == "]":
                 # ] always needs escaping inside character class
-                escaped += r'\]'
-            elif char == '\\':
+                escaped += r"\]"
+            elif char == "\\":
                 # \ always needs escaping
-                escaped += r'\\'
-            elif char == '^' and i == 0:
+                escaped += r"\\"
+            elif char == "^" and i == 0:
                 # ^ only needs escaping if it's the first character (negation)
-                escaped += r'\^'
-            elif char == '-':
+                escaped += r"\^"
+            elif char == "-":
                 # In mixed classes, hyphen needs escaping if:
                 # 1. It's in the middle of chars (between two characters), OR
                 # 2. It's at the end and there's content after (ranges/escapes)
-                needs_escape = (0 < i < len(chars) - 1) or (i == len(chars) - 1 and has_content_after)
+                needs_escape = (0 < i < len(chars) - 1) or (
+                    i == len(chars) - 1 and has_content_after
+                )
                 if needs_escape:
-                    escaped += r'\-'
+                    escaped += r"\-"
                 else:
                     escaped += char
             else:
                 # All other characters are safe in character classes
                 escaped += char
-        
+
         return escaped
 
     def _validate_escape_sequence(self, sequence: str) -> None:
@@ -1062,21 +1083,24 @@ class RegexBuilder:
         """
         if not isinstance(sequence, str):
             raise ValueError("Escape sequence must be a string")
-        
+
         # Valid escape sequences for character classes
         valid_sequences = {
-            r'\d', r'\D',  # Digits and non-digits
-            r'\w', r'\W',  # Word characters and non-word characters  
-            r'\s', r'\S',  # Whitespace and non-whitespace
-            r'\t',         # Tab
-            r'\n',         # Newline
-            r'\r',         # Carriage return
-            r'\f',         # Form feed
-            r'\v',         # Vertical tab
+            r"\d",
+            r"\D",  # Digits and non-digits
+            r"\w",
+            r"\W",  # Word characters and non-word characters
+            r"\s",
+            r"\S",  # Whitespace and non-whitespace
+            r"\t",  # Tab
+            r"\n",  # Newline
+            r"\r",  # Carriage return
+            r"\f",  # Form feed
+            r"\v",  # Vertical tab
         }
-        
+
         if sequence not in valid_sequences:
-            valid_list = ', '.join(sorted(valid_sequences))
+            valid_list = ", ".join(sorted(valid_sequences))
             raise ValueError(
                 f"Invalid escape sequence: '{sequence}'. "
                 f"Valid sequences for character classes are: {valid_list}"
@@ -1088,13 +1112,13 @@ class RegexBuilder:
         min_qty: int | None,
         max_qty: int | None,
         special_quantifier: str | None,
-        unit_names: tuple[str, str]  # (singular, plural)
+        unit_names: tuple[str, str],  # (singular, plural)
     ) -> tuple[str, str]:
         """
         Internal method to generate a quantifier and its human-readable explanation.
 
-        This method handles both standard quantifiers (like `{n}`, `{min,max}`) and 
-        special quantifiers (`+`, `*`, `?`), and return the quantifier and an 
+        This method handles both standard quantifiers (like `{n}`, `{min,max}`) and
+        special quantifiers (`+`, `*`, `?`), and return the quantifier and an
         explanation using appropriate singular or plural terms.
 
         Args:
@@ -1114,15 +1138,15 @@ class RegexBuilder:
                 raise ValueError("Cannot use special quantifier along with quantity values.")
             if special_quantifier not in ("+", "*", "?"):
                 raise ValueError(f"Invalid special quantifier: {special_quantifier}")
-            
+
             explanation = {
                 "+": f"One or more {plural}",
                 "*": f"Zero or more {plural}",
-                "?": f"Zero or one {singular}"
+                "?": f"Zero or one {singular}",
             }[special_quantifier]
 
             return special_quantifier, explanation
-        
+
         try:
             if qty is not None:
                 qty = int(qty)
@@ -1131,7 +1155,7 @@ class RegexBuilder:
             if max_qty is not None:
                 max_qty = int(max_qty)
         except (ValueError, TypeError):
-            raise ValueError("Quantities must be valid integers or None.")
+            raise ValueError("Quantities must be valid integers or None.") from None
 
         if any(v is not None and v <= 0 for v in (qty, min_qty, max_qty)):
             raise ValueError("Quantities cannot be equal to or less than zero.")
@@ -1151,7 +1175,7 @@ class RegexBuilder:
 
         return "", f"Exactly 1 {singular}"
 
-    def _process_lookaround_pattern(self, builder: 'RegexBuilder') -> tuple[str, str]:
+    def _process_lookaround_pattern(self, builder: "RegexBuilder") -> tuple[str, str]:
         """
         Processes a RegexBuilder instance for use in lookaround assertions.
 
