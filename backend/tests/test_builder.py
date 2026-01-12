@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from src.builder import RegexBuilder
+from builder import RegexBuilder
 
 
 def test_quantifier_exact_and_plural_explanation():
