@@ -259,6 +259,43 @@ class RegexBuilder:
         self._explanations.append(explanation)
         return self
 
+    def any_char(
+        self,
+        qty: int | None = None,
+        min_qty: int | None = None,
+        max_qty: int | None = None,
+        special_quantifier: str | None = None,
+    ) -> "RegexBuilder":
+        """
+        Adds a dot (`.`) pattern to the current regex expression, matching any character.
+
+        Note: By default, the dot does not match newline characters. If the DOTALL flag
+        is enabled (via `enable_dotall()`), it will match newlines as well.
+
+        Supports exact quantities (e.g., `{3}`), ranged quantities (e.g., `{2,5}`),
+        and special quantifiers (`+`, `*`, `?`) to define how many characters should be matched.
+
+        Args:
+            qty (int | None): Exact quantity, e.g., 3 for `{3}`.
+            min_qty (int | None): Minimum quantity, used in ranged quantifiers.
+            max_qty (int | None): Maximum quantity, used in ranged quantifiers.
+            special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
+
+        Returns:
+            self: Enables method chaining.
+        """
+        quantifier, explanation = self._get_quantifier_and_explanation(
+            qty=qty,
+            min_qty=min_qty,
+            max_qty=max_qty,
+            special_quantifier=special_quantifier,
+            unit_names=("character", "characters"),
+        )
+
+        self._pattern_parts.append("." + quantifier)
+        self._explanations.append(explanation)
+        return self
+
     def end_anchor(self, multiline: bool = False) -> "RegexBuilder":
         """
         Adds an end-of-line or end-of-text anchor to the regex pattern.

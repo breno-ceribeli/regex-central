@@ -275,6 +275,50 @@ def test_char_class_negated_with_quantifiers():
     assert "NOT in 'xyz'" in b2.explain()[0]
 
 
+def test_any_char_basic_and_quantified():
+    """Test the any_char (.) method functionality"""
+    # Basic usage
+    b1 = RegexBuilder()
+    b1.any_char()
+    assert b1.build() == "."
+    assert "Exactly 1 character" in b1.explain()[0] # Default quantity is 1
+
+    # With quantifier
+    b2 = RegexBuilder()
+    b2.any_char(qty=3)
+    assert b2.build() == ".{3}"
+    assert "Exactly 3 characters" in b2.explain()[0]
+
+    # With special quantifier
+    b3 = RegexBuilder()
+    b3.any_char(special_quantifier="*")
+    assert b3.build() == ".*"
+    assert "Zero or more characters" in b3.explain()[0]
+
+
+def test_any_char_compile_and_match():
+    """Test that any_char generates valid regex that matches correctly"""
+    # Should match anything
+    b = RegexBuilder().any_char(special_quantifier="+")
+    compiled = b.compile()
+    
+    assert compiled.match("abc-123")
+    assert compiled.match("!@#")
+    
+    # By default, dot does usually (depending on engine) match newlines only with DOTALL.
+    # Python's re matches everything EXCEPT newline by default.
+    assert compiled.match("line")
+    
+    # Test with DOTALL
+    b_dotall = RegexBuilder().enable_dotall().any_char(special_quantifier="+")
+    compiled_dotall = b_dotall.compile()
+    
+    matching_newline = compiled_dotall.match("line1\nline2")
+    assert matching_newline is not None
+    # \n is matched
+    assert matching_newline.group(0) == "line1\nline2"
+
+
 def test_char_class_special_characters():
     """Test character class with special regex characters"""
     # Characters that need escaping inside character class
