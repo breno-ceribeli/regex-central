@@ -459,6 +459,92 @@ class RegexBuilder:
 
         return self
 
+    def alternation(
+        self,
+        parts: list[str | "RegexBuilder"],
+        capturing: bool = False,
+        qty: int | None = None,
+        min_qty: int | None = None,
+        max_qty: int | None = None,
+        special_quantifier: str | None = None,
+    ) -> "RegexBuilder":
+        """
+        Adds an alternation (OR) logic to the regex pattern.
+
+        Creates a group matching one of the provided alternatives, like `(?:a|b|c)`.
+
+        Args:
+            parts (list[str | RegexBuilder]): List of alternatives. strings are treated as literals.
+            capturing (bool, optional): If True, uses a capturing group `(...)`. Defaults to False `(?:...)`.
+            qty (int | None): Exact quantity, e.g., 3 for `{3}`.
+            min_qty (int | None): Minimum quantity, used in ranged quantifiers.
+            max_qty (int | None): Maximum quantity, used in ranged quantifiers.
+            special_quantifier (str | None): One of '+', '*', or '?', for shorthand quantifiers.
+
+        Returns:
+            self: Enables method chaining.
+
+        Raises:
+            ValueError: If parts list is empty.
+            TypeError: If parts contains invalid types.
+        """
+        if not parts:
+            raise ValueError("Alternation parts cannot be empty")
+
+        processed_parts = []
+        explanation_parts = []
+
+        for part in parts:
+            if isinstance(part, str):
+                processed_parts.append(re.escape(part))
+                explanation_parts.append(f'"{part}"')
+            elif isinstance(part, RegexBuilder):
+                subpattern = part.build()
+                processed_parts.append(subpattern)
+
+                # Extract explanation
+                expl_list = part.explain()
+                items = [
+                    s.strip()
+                    for s in map(str, expl_list)
+                    if s is not None and str(s).strip()
+                ]
+                # Join with ; because comma might be confusing in OR list
+                part_expl = "; ".join(items) if items else "complex pattern"
+                explanation_parts.append(f"({part_expl})")
+            else:
+                raise TypeError(
+                    "Alternation parts must be strings or RegexBuilder instances"
+                )
+
+        # Build pattern
+        combined_pattern = "|".join(processed_parts)
+        group_start = "(" if capturing else "(?:"
+        final_pattern = f"{group_start}{combined_pattern})"
+
+        # Handle quantifiers
+        unit_names = ("alternation group", "alternation groups")
+        quantifier, quant_expl = self._get_quantifier_and_explanation(
+            qty=qty,
+            min_qty=min_qty,
+            max_qty=max_qty,
+            special_quantifier=special_quantifier,
+            unit_names=unit_names,
+        )
+
+        self._pattern_parts.append(final_pattern + quantifier)
+
+        # Build explanation
+        joined_explanations = " OR ".join(explanation_parts)
+        base_expl = f"Match either {joined_explanations}"
+
+        if quantifier:
+            self._explanations.append(f"{quant_expl}: {base_expl}")
+        else:
+            self._explanations.append(base_expl)
+
+        return self
+
     def lookahead(self, builder: "RegexBuilder") -> "RegexBuilder":
         """
         Adds a positive lookahead assertion to the regex pattern.

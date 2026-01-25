@@ -319,6 +319,106 @@ def test_any_char_compile_and_match():
     assert matching_newline.group(0) == "line1\nline2"
 
 
+def test_alternation_basic_strings():
+    """Test alternation with simple string literals"""
+    b = RegexBuilder()
+    b.alternation(["cat", "dog", "bird"])
+    
+    pattern = b.build()
+    # Should create non-capturing group with pipes
+    assert pattern == "(?:cat|dog|bird)"
+    
+    expl = b.explain()[0]
+    assert 'Match either "cat" OR "dog" OR "bird"' in expl
+
+
+def test_alternation_mixed_types():
+    """Test alternation mixing strings and RegexBuilder instances"""
+    # Create a sub-builder for digits
+    digits_part = RegexBuilder().digits(3)
+    
+    b = RegexBuilder()
+    b.alternation(["id_", digits_part, "code"])
+    
+    pattern = b.build()
+    # Strings are escaped, builder pattern is inserted directly
+    # \d{3} comes from digits_part
+    assert pattern == r"(?:id_|\d{3}|code)"
+    
+    expl = b.explain()[0]
+    # Check that explanation contains parts from all sources
+    assert '"id_"' in expl
+    assert '"code"' in expl
+    assert "Exactly 3 digits" in expl
+
+
+def test_alternation_special_chars_escaping():
+    """Test that special characters in string parts are escaped"""
+    b = RegexBuilder()
+    # These contain regex special chars that must be escaped
+    b.alternation(["(a)", "b.c", "d|e"])
+    
+    pattern = b.build()
+    # Should overlap with expected escaped version
+    # (a) -> \(a\)
+    # b.c -> b\.c
+    # d|e -> d\|e
+    assert r"\(a\)" in pattern
+    assert r"b\.c" in pattern
+    assert r"d\|e" in pattern
+    assert pattern == r"(?:\(a\)|b\.c|d\|e)"
+
+
+def test_alternation_with_quantifiers_and_capturing():
+    """Test alternation with quantifiers and capturing mode"""
+    # Capturing = True
+    b1 = RegexBuilder()
+    b1.alternation(["a", "b"], capturing=True)
+    assert b1.build() == "(a|b)"  # Capturing group
+    
+    # With quantifier
+    b2 = RegexBuilder()
+    b2.alternation(["a", "b"], qty=3)
+    assert b2.build() == "(?:a|b){3}"
+    assert "Exactly 3 alternation groups" in b2.explain()[0]
+    
+    # With special quantifier
+    b3 = RegexBuilder()
+    b3.alternation(["a", "b"], special_quantifier="+")
+    assert b3.build() == "(?:a|b)+"
+
+
+def test_alternation_validation():
+    """Test error handling for alternation"""
+    # Empty list
+    with pytest.raises(ValueError, match="Alternation parts cannot be empty"):
+        RegexBuilder().alternation([])
+        
+    # Invalid type
+    with pytest.raises(TypeError):
+        RegexBuilder().alternation(["ok", 123])  # type: ignore
+
+
+def test_alternation_real_world():
+    """Test a realistic usage of alternation"""
+    # Matches common image extensions: .jpg OR .png OR .gif
+    
+    # Correct logic: flags are applied to the builder instance
+    b = (RegexBuilder()
+         .enable_ignorecase()
+         .literal(".")
+         .alternation(["jpg", "png", "gif"]))
+         
+    pattern = b.build()
+    compiled = b.compile()
+    
+    assert pattern == r"\.(?:jpg|png|gif)"
+    assert compiled.match(".jpg")
+    assert compiled.match(".PNG") # IgnoreCase
+    assert compiled.match(".Gif")
+    assert not compiled.match(".bmp")
+
+
 def test_char_class_special_characters():
     """Test character class with special regex characters"""
     # Characters that need escaping inside character class
