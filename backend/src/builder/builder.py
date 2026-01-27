@@ -399,7 +399,7 @@ class RegexBuilder:
 
         return self
 
-    def start_group(self, capturing: bool = False) -> "RegexBuilder":
+    def start_group(self, capturing: bool = False, name: str | None = None) -> "RegexBuilder":
         """
         Starts a new group in the regex pattern.
 
@@ -407,14 +407,30 @@ class RegexBuilder:
             capturing (bool, optional):
                 If True, creates a capturing group using '()'.
                 If False (default), creates a non-capturing group using '(?:)'.
+            name (str | None, optional):
+                If provided, creates a named capturing group using '(?P<name>...)'.
+                When a name is provided, 'capturing' is automatically treated as True.
+                The name must differ from existing group names and consist of alphanumeric
+                characters (starting with a non-digit).
 
         Returns:
             self: Enables method chaining.
+
+        Raises:
+            ValueError: If the group name is invalid.
         """
-        self._pattern_parts.append("(" if capturing else "(?:")
-        self._explanations.append(
-            "Start of capturing group" if capturing else "Start of non-capturing group"
-        )
+        if name:
+            if not name.isidentifier():
+                raise ValueError(
+                    f"Invalid group name '{name}'. Names must be valid Python identifiers."
+                )
+            self._pattern_parts.append(f"(?P<{name}>")
+            self._explanations.append(f"Start of named group '{name}'")
+        else:
+            self._pattern_parts.append("(" if capturing else "(?:")
+            self._explanations.append(
+                "Start of capturing group" if capturing else "Start of non-capturing group"
+            )
         return self
 
     def end_group(

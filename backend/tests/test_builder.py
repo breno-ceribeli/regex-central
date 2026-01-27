@@ -162,6 +162,43 @@ def test_group_nesting_and_quantifiers():
     assert "(abc){2}" in pattern
     assert r"(?:\d+)?" in pattern
 
+def test_named_group_behavior():
+    # Test valid named group
+    b = RegexBuilder()
+    b.start_group(name="year_group")
+    b.digits(4)
+    b.end_group()
+    pattern = b.build()
+    
+    # Verify the pattern syntax
+    assert pattern == r"(?P<year_group>\d{4})"
+    
+    # Verify explanation contains the group name
+    explanation = b.explain()
+    assert any("Start of named group 'year_group'" in exc for exc in explanation)
+
+    # Test execution with re module
+    match = re.search(pattern, "2023")
+    assert match is not None
+    # Verify capture by name
+    assert match.group("year_group") == "2023"
+
+    # Test invalid named group (starts with digit)
+    b_invalid = RegexBuilder()
+    with pytest.raises(ValueError, match="Invalid group name"):
+        # invalid identifier
+        b_invalid.start_group(name="1st_group")
+        
+    # Test invalid named group (contains hyphen)
+    with pytest.raises(ValueError, match="Invalid group name"):
+        b_invalid.start_group(name="invalid-name")
+
+    # Test that named group is implicitly capturing
+    b_mixed = RegexBuilder()
+    b_mixed.start_group(capturing=False, name="forced_capture")
+    b_mixed.digits(1)
+    b_mixed.end_group()
+    assert b_mixed.build() == r"(?P<forced_capture>\d)"
 
 def test_negative_lookarounds():
     sub = RegexBuilder().literal("test")
