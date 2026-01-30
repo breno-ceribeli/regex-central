@@ -935,3 +935,24 @@ def test_character_class_edge_cases():
         escape_sequences=[]
     )
     assert b4.build() == "[abc]"
+
+
+def test_unclosed_group_validation():
+    """Test validation for unclosed groups during build."""
+    b = RegexBuilder()
+    b.start_group()
+    b.digits(3)
+    # Missing end_group()
+    
+    with pytest.raises(ValueError, match="Unclosed group"):
+        b.build()
+
+
+def test_extra_end_group_validation():
+    """Test validation for closing a group when no group is open."""
+    b = RegexBuilder()
+    b.start_group()
+    b.end_group()
+    
+    with pytest.raises(ValueError, match="No open group to close"):
+        b.end_group()

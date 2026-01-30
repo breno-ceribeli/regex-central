@@ -20,6 +20,7 @@ class RegexBuilder:
         self._pattern_parts: list[str] = []
         self._explanations: list[str] = []
         self._flags: set[re.RegexFlag] = set()
+        self._open_groups_count: int = 0
 
     def start_anchor(self, multiline: bool = False) -> "RegexBuilder":
         """
@@ -431,6 +432,7 @@ class RegexBuilder:
             self._explanations.append(
                 "Start of capturing group" if capturing else "Start of non-capturing group"
             )
+        self._open_groups_count += 1
         return self
 
     def end_group(
@@ -455,8 +457,15 @@ class RegexBuilder:
 
         Returns:
             self: Enables method chaining.
+
+        Raises:
+            ValueError: If there are no open groups to close.
         """
+        if self._open_groups_count <= 0:
+            raise ValueError("No open group to close.")
+
         self._pattern_parts.append(")")
+        self._open_groups_count -= 1
 
         unit_names = ("group", "groups")
         quantifier, explanation = self._get_quantifier_and_explanation(
@@ -944,7 +953,13 @@ class RegexBuilder:
 
         Returns:
             str: The complete regex pattern ready for compilation or direct use.
+
+        Raises:
+            ValueError: If there are unclosed groups in the pattern.
         """
+        if self._open_groups_count > 0:
+            raise ValueError(f"Unclosed groups detected: {self._open_groups_count} group(s) were not closed.")
+
         return "".join(self._pattern_parts)
 
     def compile(self) -> re.Pattern[str]:
